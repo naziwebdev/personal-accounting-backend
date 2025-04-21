@@ -1,7 +1,7 @@
 import { IsString, IsNotEmpty, Length, Matches } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class registerDto {
+export class RegisterDto {
   @IsNotEmpty({ message: 'name is required' })
   @Length(3, 50, {
     message: 'name must be between 3 and 50 characters',
