@@ -7,8 +7,8 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 import { UsersModule } from 'src/users/users.module';
 import { RefreshStrategy } from './strategies/refresh.strategy';
-// import { CurrentUserMiddleware } from 'src/middlewares/current-user.middleware';
-// import { MiddlewareConsumer } from '@nestjs/common';
+import { CurrentUserMiddleware } from 'src/middlewares/current-user.middleware';
+import { MiddlewareConsumer } from '@nestjs/common';
 
 @Module({
   imports: [UsersModule, PassportModule,JwtModule.registerAsync({
@@ -52,8 +52,8 @@ import { RefreshStrategy } from './strategies/refresh.strategy';
   exports: [AuthService, JwtModule]
 })
 export class AuthModule {
-//   //set middleware global for all routes
-//   configure(consumer: MiddlewareConsumer) {
-//     consumer.apply(CurrentUserMiddleware).forRoutes('*');
-//   }
+  //set middleware global for all routes
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CurrentUserMiddleware).forRoutes('*');
+  }
 }
