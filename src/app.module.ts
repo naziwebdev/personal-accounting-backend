@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from '@nestjs-modules/ioredis';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { RedisModule } from '@nestjs-modules/ioredis';
         url: configService.get<string>('REDIS_URI') || 'redis://localhost:6379',
       }),
     }),
+    AuthModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
