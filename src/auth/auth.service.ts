@@ -10,7 +10,6 @@ import axios from 'axios';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
-import { RegisterDto } from './dtos/register.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import {
   generateOtp,
@@ -76,4 +75,9 @@ export class AuthService {
       otp,
     };
   }
+
+ async verify (phone:string,otp:string){
+
+ }
+  
 }

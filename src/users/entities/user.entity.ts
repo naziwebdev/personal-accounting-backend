@@ -13,8 +13,6 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false })
-  name: string;
 
   @Column({ nullable: false, length: 11, unique: true })
   phone: string;
