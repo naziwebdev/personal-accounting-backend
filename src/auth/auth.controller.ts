@@ -2,6 +2,7 @@ import { Body, Controller, Post, Res, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SendOTPDto } from './dtos/send-otp.dto';
 import { Response } from 'express';
+import { VerifyOtpDto } from './dtos/verify-otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,6 +24,45 @@ export class AuthController {
       data: sendOtp.otp,
       statusCode: HttpStatus.OK,
       message: sendOtp.message,
+    });
+  }
+
+  @Post('/verify')
+  async verify(@Body() body: VerifyOtpDto, @Res() res: Response) {
+    const verify = await this.authService.verify(body.phone, body.otp);
+
+    if (verify.isRegister) {
+      //login
+      res.cookie('refreshToken', verify.refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+      return res.status(HttpStatus.OK).json({
+        data: {
+          accessToken: verify.accessToken,
+          user: verify.existUser,
+        },
+        statusCode: HttpStatus.OK,
+        message: 'user login successfully',
+      });
+    }
+
+    //register
+    res.cookie('refreshToken', verify.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+    return res.status(HttpStatus.CREATED).json({
+      data: {
+        accessToken: verify.accessToken,
+        user: verify.newUser,
+      },
+      statusCode: HttpStatus.CREATED,
+      message: 'user register successfully',
     });
   }
 }

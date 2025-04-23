@@ -3,6 +3,7 @@ import {
   Inject,
   ConflictException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
@@ -11,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
+import * as bcrypt from 'bcrypt';
 import {
   generateOtp,
   getOtpDetails,
@@ -25,6 +27,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     @InjectRedis() private readonly redisClient: Redis,
+    @Inject('JWT_SECRET_KEY') private readonly jwtSecret: string,
     @Inject('JWT_EXPIRESIN') private readonly jwtExpiresIn: string,
     @Inject('REFRESH_SECRET_KEY') private readonly refreshSecret: string,
     @Inject('REFRESH_EXPIRESIN') private readonly refreshExpiresIn: string,
@@ -62,7 +65,6 @@ export class AuthService {
       return {
         message: `otp sent already try again after ${remainingTime}`,
         otp: null,
-      
       };
     }
 
@@ -76,8 +78,59 @@ export class AuthService {
     };
   }
 
- async verify (phone:string,otp:string){
+  async verify(phone: string, otp: string) {
+    const userOtp = await this.redisClient.get(getOtpRedisPattern(phone));
+    if (!userOtp) {
+      throw new BadRequestException('not found otp');
+    }
 
- }
-  
+    const isValidOtp = await bcrypt.compare(otp, userOtp);
+    if (!isValidOtp) {
+      throw new BadRequestException('otp is invalid');
+    }
+
+    const existUser = await this.usersService.findByPhone(phone);
+    if (existUser) {
+      const accessToken = this.jwtService.sign(
+        {
+          userId: existUser.id,
+        },
+        {
+          secret: this.jwtSecret,
+          expiresIn: this.jwtExpiresIn,
+        },
+      );
+      const refreshToken = this.jwtService.sign(
+        {
+          userId: existUser.id,
+        },
+        {
+          secret: this.refreshSecret,
+          expiresIn: this.refreshExpiresIn,
+        },
+      );
+      return { isRegister: true, existUser, accessToken, refreshToken };
+    }
+
+    const newUser = await this.usersService.create(phone);
+    const accessToken = this.jwtService.sign(
+      {
+        userId: newUser.id,
+      },
+      {
+        secret: this.jwtSecret,
+        expiresIn: this.jwtExpiresIn,
+      },
+    );
+    const refreshToken = this.jwtService.sign(
+      {
+        userId: newUser.id,
+      },
+      {
+        secret: this.refreshSecret,
+        expiresIn: this.refreshExpiresIn,
+      },
+    );
+    return { isRegister: false, newUser, accessToken, refreshToken };
+  }
 }

@@ -27,11 +27,10 @@ export class UsersService {
     return user;
   }
 
-  async create(name: string, phone: string) {
+  async create(phone: string) {
     const usersCount = await this.usersRepository.count();
 
     const user = await this.usersRepository.create({
-      name,
       phone,
       role: usersCount > 0 ? UserRoleEnum.USER : UserRoleEnum.ADMIN,
     });

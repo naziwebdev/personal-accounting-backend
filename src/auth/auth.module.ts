@@ -19,8 +19,7 @@ import { RedisModule } from '@nestjs-modules/ioredis';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '60m' },
+        secret: configService.get<string>('JWT_SECRET_KEY')
       }),
       inject: [ConfigService],
     }),
