@@ -33,5 +33,6 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     UsersModule,
   ],
+  exports : [RedisModule]
 })
 export class AppModule {}

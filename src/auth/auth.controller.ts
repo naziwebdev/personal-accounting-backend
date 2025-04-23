@@ -11,6 +11,14 @@ export class AuthController {
   async send(@Body() body: SendOTPDto, @Res() res: Response) {
     const sendOtp = await this.authService.sendOtp(body.phone);
 
+    if (!sendOtp.otp) {
+      return res.status(HttpStatus.OK).json({
+        data: sendOtp.otp,
+        statusCode: HttpStatus.TOO_MANY_REQUESTS,
+        message: sendOtp.message,
+      });
+    }
+
     return res.status(HttpStatus.OK).json({
       data: sendOtp.otp,
       statusCode: HttpStatus.OK,

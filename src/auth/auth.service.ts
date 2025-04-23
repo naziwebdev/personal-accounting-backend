@@ -25,8 +25,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly redisClient: Redis,
-    @Inject('JWT_SECRET_KEY') private readonly jwtSecret: string,
+    @InjectRedis() private readonly redisClient: Redis,
     @Inject('JWT_EXPIRESIN') private readonly jwtExpiresIn: string,
     @Inject('REFRESH_SECRET_KEY') private readonly refreshSecret: string,
     @Inject('REFRESH_EXPIRESIN') private readonly refreshExpiresIn: string,
@@ -64,6 +63,7 @@ export class AuthService {
       return {
         message: `otp sent already try again after ${remainingTime}`,
         otp: null,
+      
       };
     }
 
