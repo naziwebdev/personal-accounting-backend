@@ -1,7 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import {
+  Injectable,
+  Inject,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
 import axios from 'axios';
+import { JwtService } from '@nestjs/jwt';
+import { LoginDto } from './dtos/login.dto';
+import { RegisterDto } from './dtos/register.dto';
+import { VerifyOtpDto } from './dtos/verify-otp.dto';
 
 @Injectable()
 export class AuthService {
@@ -9,6 +17,11 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
+    private readonly jwtService:JwtService,
+    @Inject('JWT_SECRET_KEY') private readonly jwtSecret: string,
+    @Inject('JWT_EXPIRESIN') private readonly jwtExpiresIn: string,
+    @Inject('REFRESH_SECRET_KEY') private readonly refreshSecret: string,
+    @Inject('REFRESH_EXPIRESIN') private readonly refreshExpiresIn: string,
   ) {}
 
   async sendSms(phone: string, otp: string) {
@@ -33,6 +46,7 @@ export class AuthService {
       console.error('Error sending OTP:', error);
     }
   }
+
 
 
 }
