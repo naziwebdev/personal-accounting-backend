@@ -29,5 +29,31 @@ export const getOtpDetails = async (redisClient: Redis, phone: string) => {
   }
 };
 
+export const generateOtp = async (
+  redisClient: Redis,
+  phone: string,
+  length = 4,
+  expireTime = 2,
+) => {
+  const digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  let otp = '';
 
+  for (let i = 0; i < length; i++) {
+    otp += digits[Math.floor(Math.random() * digits.length)];
+  }
 
+  const hashedOtp = await bcrypt.hash(otp, 12);
+
+  try {
+    await redisClient.set(
+      getOtpRedisPattern(phone),
+      hashedOtp,
+      'EX',
+      expireTime * 60,
+    );
+  } catch (error) {
+    throw new Error(`Error setting OTP in Redis: ${error.message}`);
+  }
+
+  return otp;
+};
