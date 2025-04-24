@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Param,
   Post,
   Put,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -14,6 +16,7 @@ import { RoleGuard } from 'src/guards/role.gurad';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { Response } from 'express';
 import { UpdateCategoryDto } from './dtos/update-category-dto';
+import { CategoryTypeEnum } from './enums/category-type-enum';
 
 @Controller('categories')
 export class CategoriesController {
@@ -28,6 +31,20 @@ export class CategoriesController {
       data: newCategory,
       statusCode: HttpStatus.CREATED,
       message: 'category created successfully',
+    });
+  }
+
+  @Get()
+  async getCatecoriesByType(
+    @Query('type') type: CategoryTypeEnum,
+    @Res() res: Response,
+  ) {
+    const categories = await this.categoriesService.findAllByType(type);
+
+    return res.status(HttpStatus.OK).json({
+      data: categories,
+      statusCode: HttpStatus.OK,
+      message: 'categoris get successfully',
     });
   }
 

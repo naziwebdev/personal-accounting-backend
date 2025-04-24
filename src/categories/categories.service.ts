@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category-dto';
+import { CategoryTypeEnum } from './enums/category-type-enum';
 
 @Injectable()
 export class CategoriesService {
@@ -15,6 +16,15 @@ export class CategoriesService {
   async create(createCategoryDto: CreateCategoryDto) {
     const category = await this.categoriesRepository.create(createCategoryDto);
     return await this.categoriesRepository.save(category);
+  }
+
+  async findAllByType(type: CategoryTypeEnum) {
+    const categories = await this.categoriesRepository.find({
+      where: {
+        type,
+      },
+    });
+    return categories;
   }
 
   async update(updateCategoryDto: UpdateCategoryDto, id: number) {
