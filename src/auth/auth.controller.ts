@@ -102,4 +102,20 @@ export class AuthController {
       message: 'access-token generated successfully',
     });
   }
+
+  @Post('/logout')
+  async logOut(@Req() req: Request, @Res() res: Response) {
+    const refreshToken = req.cookies['refreshToken'];
+    await this.authService.logOut(refreshToken);
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+    });
+
+    return res.status(HttpStatus.OK).json({
+      data: '',
+      statusCode: HttpStatus.OK,
+      message: 'user log out successfully',
+    });
+  }
 }

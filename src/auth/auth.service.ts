@@ -19,6 +19,7 @@ import {
   getOtpRedisPattern,
 } from './helpers/otp-redis';
 import {
+  deleteRefreshTokenFromRedis,
   getRefreshTokenRedis,
   setRefreshTokenInRedis,
 } from './helpers/refresh-token-redis';
@@ -200,5 +201,16 @@ export class AuthService {
     );
 
     return accessToken;
+  }
+
+  async logOut(token: string) {
+    if (!token) {
+      throw new NotFoundException('not found token');
+    }
+
+    const payload = this.jwtService.verify(token, {
+      secret: this.refreshSecret,
+    });
+    await deleteRefreshTokenFromRedis(this.redisClient, payload.userId);
   }
 }

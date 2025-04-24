@@ -45,3 +45,17 @@ export const getRefreshTokenRedis = async (
     throw error;
   }
 };
+
+export const deleteRefreshTokenFromRedis = async (
+  redisClient: Redis,
+  userId: number,
+) => {
+  const pattern = getRefreshTokenRedisPattern(userId);
+
+  try {
+    await redisClient.del(pattern);
+  } catch (error) {
+    throw error
+  }
+
+};
