@@ -1,4 +1,9 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
 import axios from 'axios';
@@ -16,6 +21,7 @@ import {
   getRefreshTokenRedis,
   setRefreshTokenInRedis,
 } from './helpers/refresh-token-redis';
+
 
 @Injectable()
 export class AuthService {
@@ -89,7 +95,7 @@ export class AuthService {
 
     const existUser = await this.usersService.findByPhone(phone);
     if (existUser) {
-      const userId = existUser.id;
+      const userID = existUser.id;
       const accessToken = this.jwtService.sign(
         {
           userId: existUser.id,
@@ -109,12 +115,12 @@ export class AuthService {
         },
       );
 
-      await setRefreshTokenInRedis(this.redisClient, refreshToken, userId);
+      await setRefreshTokenInRedis(this.redisClient, refreshToken, userID);
       return { isRegister: true, existUser, accessToken, refreshToken };
     }
 
     const newUser = await this.usersService.create(phone);
-    const userId = newUser.id;
+    const userID = newUser.id;
     const accessToken = this.jwtService.sign(
       {
         userId: newUser.id,
@@ -133,9 +139,16 @@ export class AuthService {
         expiresIn: this.refreshExpiresIn,
       },
     );
-    await setRefreshTokenInRedis(this.redisClient, refreshToken, userId);
+    await setRefreshTokenInRedis(this.redisClient, refreshToken, userID);
     return { isRegister: false, newUser, accessToken, refreshToken };
   }
 
-}
+  async getMe(id: number) {
+    const user = await this.usersService.findById(id);
+    if (!user) {
+      throw new NotFoundException('not found user');
+    }
 
+    return user;
+  }
+}

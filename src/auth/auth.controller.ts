@@ -1,8 +1,11 @@
-import { Body, Controller, Post, Res, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Post, Res, HttpStatus, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SendOTPDto } from './dtos/send-otp.dto';
 import { Response } from 'express';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
+import { getUser } from 'src/decorators/get-user.decorator';
+import { User } from 'src/users/entities/user.entity';
+import { JwtAuthGuard } from 'src/guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -63,6 +66,18 @@ export class AuthController {
       },
       statusCode: HttpStatus.CREATED,
       message: 'user register successfully',
+    });
+  }
+
+  @Get('/me')
+  @UseGuards(JwtAuthGuard)
+  async getMe(@getUser() user: User, @Res() res: Response) {
+    const userInfos = await this.authService.getMe(user.id);
+
+    return res.status(HttpStatus.OK).json({
+      data: userInfos,
+      statusCode: HttpStatus.OK,
+      message: 'user infos send successfully',
     });
   }
 }
