@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
@@ -61,6 +62,21 @@ export class CategoriesController {
       data: category,
       statusCode: HttpStatus.OK,
       message: 'category updated successfully',
+    });
+  }
+
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  async remove(
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+     await this.categoriesService.remove(parseInt(id));
+
+    return res.status(HttpStatus.OK).json({
+      data:null,
+      statusCode: HttpStatus.OK,
+      message: 'category removed successfully',
     });
   }
 }

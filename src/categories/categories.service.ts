@@ -37,4 +37,14 @@ export class CategoriesService {
 
     return await this.categoriesRepository.save(category);
   }
+
+  async remove(id: number) {
+    const category = await this.categoriesRepository.findOne({ where: { id } });
+    if (!category) {
+      throw new NotFoundException('not found category');
+    }
+
+    await this.categoriesRepository.remove(category);
+    return true;
+  }
 }
