@@ -3,6 +3,7 @@ import {
   Inject,
   BadRequestException,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
@@ -21,7 +22,6 @@ import {
   getRefreshTokenRedis,
   setRefreshTokenInRedis,
 } from './helpers/refresh-token-redis';
-
 
 @Injectable()
 export class AuthService {
@@ -150,5 +150,55 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async refreshToken(token: string) {
+    if (!token) {
+      throw new NotFoundException('not found token');
+    }
+
+    const payload = this.jwtService.verify(token, {
+      secret: this.refreshSecret,
+    });
+
+    if (!payload) {
+      throw new UnprocessableEntityException('token is invalid');
+    }
+
+    const user = await this.usersService.findById(payload.userId);
+
+    if (!user) {
+      throw new UnprocessableEntityException('token is invalid');
+    }
+
+    const refreshTokenInRedis = await getRefreshTokenRedis(
+      this.redisClient,
+      user.id,
+    );
+
+    if (refreshTokenInRedis.expired) {
+      throw new BadRequestException('token is expired');
+    }
+
+    const isValidToken = await bcrypt.compare(
+      token,
+      refreshTokenInRedis.refreshToken!,
+    );
+
+    if (!isValidToken) {
+      throw new BadRequestException('token is invalid');
+    }
+
+    const accessToken = this.jwtService.sign(
+      {
+        userId: user.id,
+      },
+      {
+        secret: this.jwtSecret,
+        expiresIn: this.jwtExpiresIn,
+      },
+    );
+
+    return accessToken;
   }
 }

@@ -1,7 +1,16 @@
-import { Body, Controller, Post, Res, HttpStatus, Get, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Res,
+  HttpStatus,
+  Get,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SendOTPDto } from './dtos/send-otp.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
@@ -78,6 +87,19 @@ export class AuthController {
       data: userInfos,
       statusCode: HttpStatus.OK,
       message: 'user infos send successfully',
+    });
+  }
+
+  @Post('/refresh')
+  async refresh(@Req() req: Request, @Res() res: Response) {
+    const refreshToken = req.cookies['refreshToken'];
+
+    const accessToken = await this.authService.refreshToken(refreshToken);
+
+    return res.status(HttpStatus.OK).json({
+      data: accessToken,
+      statusCode: HttpStatus.OK,
+      message: 'access-token generated successfully',
     });
   }
 }

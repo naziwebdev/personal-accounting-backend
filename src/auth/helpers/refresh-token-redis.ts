@@ -37,7 +37,10 @@ export const getRefreshTokenRedis = async (
         refreshToken: null,
       };
     }
-    return refreshToken;
+    return {
+      expired: false,
+      refreshToken,
+    };
   } catch (error) {
     throw error;
   }
