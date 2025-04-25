@@ -9,8 +9,8 @@ export class BankCards {
   @Column({ name: 'bank_name', nullable: false })
   bankName: string;
 
-  @Column({ name: 'bank_number', nullable: false })
-  bankNumber: string;
+  @Column({ name: 'card_number', nullable: false, length: 16 })
+  cardNumber: string;
 
   @Column({ nullable: true, default: 0 })
   balance: number;
