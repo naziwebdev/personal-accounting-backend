@@ -9,6 +9,7 @@ import {
 
 import { UserRoleEnum } from '../enums/user-role-enum';
 import { Category } from 'src/categories/entities/category.entity';
+import { BankCards } from 'src/bank-cards/entities/bank-card.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -28,6 +29,9 @@ export class User {
 
   @OneToMany(() => Category, (category) => category.user)
   categories: Category[];
+
+  @OneToMany(() => BankCards, (bankCards) => bankCards.user)
+  cards: BankCards[];
 
   @CreateDateColumn({
     name: 'created_at',
