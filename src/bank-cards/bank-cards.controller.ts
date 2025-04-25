@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Post,
   Res,
@@ -30,6 +31,18 @@ export class BankCardsController {
       data: card,
       statusCode: HttpStatus.CREATED,
       message: 'card created successfully',
+    });
+  }
+
+  @Get('/')
+  @UseGuards(JwtAuthGuard)
+  async getAll(@getUser() user: User, @Res() res: Response) {
+    const cards = await this.bankCardsService.getAll(user);
+
+    return res.status(HttpStatus.OK).json({
+      data: cards,
+      statusCode: HttpStatus.OK,
+      message: 'cards send successfully',
     });
   }
 }
