@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BankCards } from './entities/bank-card.entity';
@@ -21,14 +21,29 @@ export class BankCardsService {
     return await this.bankCardsRepository.save(bankCard);
   }
 
-  async getAll(user:User){
-
+  async getAll(user: User) {
     const userCards = await this.bankCardsRepository.find({
-        where:{
-            user:{id:user.id}
-        }
-    })
+      where: {
+        user: { id: user.id },
+      },
+    });
 
-    return userCards
+    return userCards;
+  }
+
+  async getOne(id: number, user: User) {
+    const userCard = await this.bankCardsRepository.findOne({
+      relations: ['user'],
+      where: {
+        id,
+        user: { id: user.id },
+      },
+    });
+
+    if (!userCard) {
+      throw new NotFoundException('not found card');
+    }
+
+    return userCard;
   }
 }

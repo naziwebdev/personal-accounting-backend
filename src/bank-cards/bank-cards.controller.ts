@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Param,
   Post,
   Res,
   UseGuards,
@@ -45,4 +46,18 @@ export class BankCardsController {
       message: 'cards send successfully',
     });
   }
+
+  @Get('/:id')
+  @UseGuards(JwtAuthGuard)
+  async getOne(@getUser() user: User,@Param('id') id:string, @Res() res: Response) {
+    const card = await this.bankCardsService.getOne(parseInt(id),user);
+
+    return res.status(HttpStatus.OK).json({
+      data: card,
+      statusCode: HttpStatus.OK,
+      message: 'card send successfully',
+    });
+  }
+
+
 }
