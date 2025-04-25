@@ -26,13 +26,21 @@ export class CategoriesService {
     return await this.categoriesRepository.save(category);
   }
 
-  async findAllByType(type: CategoryTypeEnum) {
-    const categories = await this.categoriesRepository.find({
+  async findAllByType(type: CategoryTypeEnum, user: User | null) {
+    const defaultCategories = await this.categoriesRepository
+      .createQueryBuilder('category')
+      .where('category.type = :type', { type })
+      .andWhere('category.user IS NULL')
+      .getMany();
+
+    const userCategories = await this.categoriesRepository.find({
       where: {
         type,
+        user: { id: user?.id },
       },
     });
-    return categories;
+
+    return [...defaultCategories, ...userCategories];
   }
 
   async update(updateCategoryDto: UpdateCategoryDto, id: number) {

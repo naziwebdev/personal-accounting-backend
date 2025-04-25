@@ -27,8 +27,12 @@ export class CategoriesController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  async create(@getUser() user:User,@Body() body: CreateCategoryDto, @Res() res: Response) {
-    const newCategory = await this.categoriesService.create(body,user);
+  async create(
+    @getUser() user: User,
+    @Body() body: CreateCategoryDto,
+    @Res() res: Response,
+  ) {
+    const newCategory = await this.categoriesService.create(body, user);
 
     return res.status(HttpStatus.CREATED).json({
       data: newCategory,
@@ -38,11 +42,13 @@ export class CategoriesController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   async getCatecoriesByType(
+    @getUser() user: User,
     @Query('type') type: CategoryTypeEnum,
     @Res() res: Response,
   ) {
-    const categories = await this.categoriesService.findAllByType(type);
+    const categories = await this.categoriesService.findAllByType(type, user);
 
     return res.status(HttpStatus.OK).json({
       data: categories,
@@ -69,14 +75,11 @@ export class CategoriesController {
 
   @Delete('/:id')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async remove(
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
-     await this.categoriesService.remove(parseInt(id));
+  async remove(@Param('id') id: string, @Res() res: Response) {
+    await this.categoriesService.remove(parseInt(id));
 
     return res.status(HttpStatus.OK).json({
-      data:null,
+      data: null,
       statusCode: HttpStatus.OK,
       message: 'category removed successfully',
     });
