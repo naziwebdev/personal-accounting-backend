@@ -60,12 +60,16 @@ export class CategoriesController {
   @Put('/:id')
   @UseGuards(JwtAuthGuard)
   async update(
-    @getUser() user:User,
+    @getUser() user: User,
     @Body() body: UpdateCategoryDto,
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-    const category = await this.categoriesService.update(body, parseInt(id),user);
+    const category = await this.categoriesService.update(
+      body,
+      parseInt(id),
+      user,
+    );
 
     return res.status(HttpStatus.OK).json({
       data: category,
@@ -75,9 +79,13 @@ export class CategoriesController {
   }
 
   @Delete('/:id')
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  async remove(@Param('id') id: string, @Res() res: Response) {
-    await this.categoriesService.remove(parseInt(id));
+  @UseGuards(JwtAuthGuard)
+  async remove(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.categoriesService.remove(parseInt(id), user);
 
     return res.status(HttpStatus.OK).json({
       data: null,

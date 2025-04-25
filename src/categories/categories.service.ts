@@ -67,8 +67,20 @@ export class CategoriesService {
     return await this.categoriesRepository.save(category);
   }
 
-  async remove(id: number) {
-    const category = await this.categoriesRepository.findOne({ where: { id } });
+  async remove(id: number,user:User) {
+    let category = null;
+
+    if (user.role === 'admin') {
+      category = await this.categoriesRepository.findOne({
+        where: { id },
+      });
+    }
+    if (user.role === 'user') {
+      category = await this.categoriesRepository.findOne({
+        relations: ['user'],
+        where: { id, user: { id: user.id } },
+      });
+    }
     if (!category) {
       throw new NotFoundException('not found category');
     }
