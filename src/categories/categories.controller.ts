@@ -18,15 +18,17 @@ import { CreateCategoryDto } from './dtos/create-category.dto';
 import { Response } from 'express';
 import { UpdateCategoryDto } from './dtos/update-category-dto';
 import { CategoryTypeEnum } from './enums/category-type-enum';
+import { getUser } from 'src/decorators/get-user.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  async create(@Body() body: CreateCategoryDto, @Res() res: Response) {
-    const newCategory = await this.categoriesService.create(body);
+  @UseGuards(JwtAuthGuard)
+  async create(@getUser() user:User,@Body() body: CreateCategoryDto, @Res() res: Response) {
+    const newCategory = await this.categoriesService.create(body,user);
 
     return res.status(HttpStatus.CREATED).json({
       data: newCategory,

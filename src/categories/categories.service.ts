@@ -5,6 +5,7 @@ import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category-dto';
 import { CategoryTypeEnum } from './enums/category-type-enum';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class CategoriesService {
@@ -13,8 +14,15 @@ export class CategoriesService {
     private categoriesRepository: Repository<Category>,
   ) {}
 
-  async create(createCategoryDto: CreateCategoryDto) {
-    const category = await this.categoriesRepository.create(createCategoryDto);
+  async create(createCategoryDto: CreateCategoryDto, user: User | null) {
+    if (user?.role === 'admin') {
+      user = null;
+    }
+    const category = await this.categoriesRepository.create({
+      title: createCategoryDto.title,
+      type: createCategoryDto.type,
+      user,
+    });
     return await this.categoriesRepository.save(category);
   }
 
