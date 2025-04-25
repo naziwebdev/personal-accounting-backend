@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -14,6 +15,7 @@ import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
+import { UpdateCardDto } from './dtos/update-card.dto';
 
 @Controller('cards')
 export class BankCardsController {
@@ -49,8 +51,12 @@ export class BankCardsController {
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
-  async getOne(@getUser() user: User,@Param('id') id:string, @Res() res: Response) {
-    const card = await this.bankCardsService.getOne(parseInt(id),user);
+  async getOne(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    const card = await this.bankCardsService.getOne(parseInt(id), user);
 
     return res.status(HttpStatus.OK).json({
       data: card,
@@ -59,5 +65,20 @@ export class BankCardsController {
     });
   }
 
+  @Put('/:id')
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateCardDto,
+    @Res() res: Response,
+  ) {
+    const card = await this.bankCardsService.update(parseInt(id), body, user);
 
+    return res.status(HttpStatus.OK).json({
+      data: card,
+      statusCode: HttpStatus.OK,
+      message: 'card updated successfully',
+    });
+  }
 }

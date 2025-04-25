@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { BankCards } from './entities/bank-card.entity';
 import { CreateCardDto } from './dtos/create-card.dto';
 import { User } from 'src/users/entities/user.entity';
+import { UpdateCardDto } from './dtos/update-card.dto';
 
 @Injectable()
 export class BankCardsService {
@@ -45,5 +46,23 @@ export class BankCardsService {
     }
 
     return userCard;
+  }
+
+  async update(id: number, updateCardDto: UpdateCardDto, user: User) {
+    const userCard = await this.bankCardsRepository.findOne({
+      relations: ['user'],
+      where: {
+        id,
+        user: { id: user.id },
+      },
+    });
+
+    if (!userCard) {
+      throw new NotFoundException('not found card');
+    }
+
+    Object.assign(userCard, updateCardDto);
+
+    return await this.bankCardsRepository.save(userCard);
   }
 }
