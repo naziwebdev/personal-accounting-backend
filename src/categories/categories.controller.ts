@@ -58,13 +58,14 @@ export class CategoriesController {
   }
 
   @Put('/:id')
-  @UseGuards(JwtAuthGuard, RoleGuard)
+  @UseGuards(JwtAuthGuard)
   async update(
+    @getUser() user:User,
     @Body() body: UpdateCategoryDto,
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-    const category = await this.categoriesService.update(body, parseInt(id));
+    const category = await this.categoriesService.update(body, parseInt(id),user);
 
     return res.status(HttpStatus.OK).json({
       data: category,
