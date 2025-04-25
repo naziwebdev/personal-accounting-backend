@@ -65,4 +65,20 @@ export class BankCardsService {
 
     return await this.bankCardsRepository.save(userCard);
   }
+
+  async remove(id: number, user: User) {
+    const userCard = await this.bankCardsRepository.findOne({
+      relations: ['user'],
+      where: {
+        id,
+        user: { id: user.id },
+      },
+    });
+
+    if (!userCard) {
+      throw new NotFoundException('not found card');
+    }
+
+    await this.bankCardsRepository.remove(userCard);
+  }
 }

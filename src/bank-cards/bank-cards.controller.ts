@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
@@ -79,6 +80,22 @@ export class BankCardsController {
       data: card,
       statusCode: HttpStatus.OK,
       message: 'card updated successfully',
+    });
+  }
+
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
+  async remove(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.bankCardsService.remove(parseInt(id), user);
+
+    return res.status(HttpStatus.OK).json({
+      data: '',
+      statusCode: HttpStatus.OK,
+      message: 'card deleted successfully',
     });
   }
 }
