@@ -26,4 +26,17 @@ export class IncomesService {
 
     return await this.incomesRepository.save(income);
   }
+
+  async findAll(page: number = 1, limit: number = 2, user: User) {
+    const userIncomes = await this.incomesRepository.find({
+    relations:['user','category','bankCard'],
+    where:{user:{id:user.id}},
+    skip:(page-1)*limit,
+    take:limit
+    });
+
+   
+
+    return userIncomes;
+  }
 }
