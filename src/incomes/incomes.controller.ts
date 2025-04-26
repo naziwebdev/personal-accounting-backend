@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Param,
   Post,
   Query,
   Res,
@@ -51,6 +52,22 @@ export class IncomesController {
 
     return res.status(HttpStatus.OK).json({
       data: incomes,
+      statusCode: HttpStatus.OK,
+      message: 'income send successfully',
+    });
+  }
+
+  @Get('/:id')
+  @UseGuards(JwtAuthGuard)
+  async findOne(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    const income = await this.incomesService.findOne(parseInt(id), user);
+
+    return res.status(HttpStatus.OK).json({
+      data: income,
       statusCode: HttpStatus.OK,
       message: 'income send successfully',
     });

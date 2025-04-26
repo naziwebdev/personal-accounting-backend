@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Income } from './entities/income.entity';
 import { Repository } from 'typeorm';
@@ -29,14 +29,28 @@ export class IncomesService {
 
   async findAll(page: number = 1, limit: number = 2, user: User) {
     const userIncomes = await this.incomesRepository.find({
-    relations:['user','category','bankCard'],
-    where:{user:{id:user.id}},
-    skip:(page-1)*limit,
-    take:limit
+      relations: ['user', 'category', 'bankCard'],
+      where: { user: { id: user.id } },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-   
-
     return userIncomes;
+  }
+
+  async findOne(id: number, user: User) {
+    const income = await this.incomesRepository.findOne({
+      relations: ['user', 'category', 'bankCard'],
+      where: {
+        id,
+        user: { id: user.id },
+      },
+    });
+
+    if (income?.user.id !== user.id) {
+      throw new UnauthorizedException('forbidden route');
+    }
+
+    return income;
   }
 }
