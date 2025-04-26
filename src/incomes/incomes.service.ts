@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Income } from './entities/income.entity';
 import { Repository } from 'typeorm';
@@ -11,9 +15,19 @@ export class IncomesService {
   constructor(
     @InjectRepository(Income)
     private incomesRepository: Repository<Income>,
+    private bankCardService: BankCardsService,
   ) {}
 
   async create(createIncomeDto: CreateIncomeDto, user: User) {
+    if (createIncomeDto.bankCard_id) {
+      const card = await this.bankCardService.getOne(
+        createIncomeDto.bankCard_id,
+        user,
+      );
+      if (!card) {
+        throw new NotFoundException('not found bank-card');
+      }
+    }
     const income = await this.incomesRepository.create({
       title: createIncomeDto.title,
       price: createIncomeDto.price,
