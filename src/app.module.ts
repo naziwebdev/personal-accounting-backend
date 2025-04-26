@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CategoriesModule } from './categories/categories.module';
 import { BankCardsModule } from './bank-cards/bank-cards.module';
+import { IncomesModule } from './incomes/incomes.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { BankCardsModule } from './bank-cards/bank-cards.module';
     UsersModule,
     CategoriesModule,
     BankCardsModule,
+    IncomesModule,
   ],
   exports : [RedisModule]
 })
