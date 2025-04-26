@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { CreateIncomeDto } from './dtos/create-income.dto';
 import { User } from 'src/users/entities/user.entity';
 import { BankCardsService } from 'src/bank-cards/bank-cards.service';
+import { UpdateIncomeDto } from './dtos/update-income.dto';
 
 @Injectable()
 export class IncomesService {
@@ -66,5 +67,34 @@ export class IncomesService {
     }
 
     return income;
+  }
+
+  async update(updateIncomeDto: UpdateIncomeDto, id: number, user: User) {
+    if (updateIncomeDto.bankCard_id) {
+      const card = await this.bankCardService.getOne(
+        updateIncomeDto.bankCard_id,
+        user,
+      );
+      if (!card) {
+        throw new NotFoundException('not found bank-card');
+      }
+    }
+
+    const income = await this.incomesRepository.findOne({
+      relations: ['user', 'category', 'bankCard'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!income) {
+      throw new NotFoundException('not found income');
+    }
+    income.title = updateIncomeDto.title ?? income.title;
+    income.price = updateIncomeDto.price ?? income.price;
+    income.date = updateIncomeDto.date ?? (income.date as any);
+    income.description = updateIncomeDto.description ?? income.description;
+    income.category.id = updateIncomeDto.category_id ?? income.category.id;
+    income.bankCard.id = updateIncomeDto.bankCard_id ?? income.bankCard.id;
+
+    return await this.incomesRepository.save(income);
   }
 }
