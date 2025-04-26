@@ -62,6 +62,10 @@ export class IncomesService {
       },
     });
 
+    if (!income) {
+      throw new NotFoundException('not found income');
+    }
+
     if (income?.user.id !== user.id) {
       throw new UnauthorizedException('forbidden route');
     }
@@ -88,6 +92,10 @@ export class IncomesService {
     if (!income) {
       throw new NotFoundException('not found income');
     }
+
+    if (income?.user.id !== user.id) {
+      throw new UnauthorizedException('forbidden route');
+    }
     income.title = updateIncomeDto.title ?? income.title;
     income.price = updateIncomeDto.price ?? income.price;
     income.date = updateIncomeDto.date ?? (income.date as any);
@@ -96,5 +104,22 @@ export class IncomesService {
     income.bankCard.id = updateIncomeDto.bankCard_id ?? income.bankCard.id;
 
     return await this.incomesRepository.save(income);
+  }
+
+  async remove(id: number, user: User) {
+    const income = await this.incomesRepository.findOne({
+      relations: ['user'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!income) {
+      throw new NotFoundException('not found income');
+    }
+
+    if (income?.user.id !== user.id) {
+        throw new UnauthorizedException('forbidden route');
+      }
+
+    await this.incomesRepository.remove(income);
   }
 }
