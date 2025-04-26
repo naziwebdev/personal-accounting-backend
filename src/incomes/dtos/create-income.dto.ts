@@ -4,8 +4,8 @@ import {
   IsNotEmpty,
   IsOptional,
   Length,
-  IsDate,
   IsInt,
+  IsDateString,
 } from 'class-validator';
 
 export class CreateIncomeDto {
@@ -18,9 +18,9 @@ export class CreateIncomeDto {
   @IsNotEmpty({ message: 'price is required' })
   price: number;
 
-  @IsDate({ message: 'format must be date' })
+  @IsDateString()
   @IsNotEmpty({ message: 'date is required' })
-  date: Date;
+  date: string; 
 
   @IsOptional()
   description: string;
