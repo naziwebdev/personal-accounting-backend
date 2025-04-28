@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Param,
   Post,
   Query,
   Res,
@@ -51,6 +52,22 @@ export class NotesController {
 
     return res.status(HttpStatus.OK).json({
       data: notes,
+      statusCode: HttpStatus.OK,
+      message: 'notes sent successfully',
+    });
+  }
+
+  @Get('/:id')
+  @UseGuards(JwtAuthGuard)
+  async findOne(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    const note = await this.notesService.findOne(parseInt(id), user);
+
+    return res.status(HttpStatus.OK).json({
+      data: note,
       statusCode: HttpStatus.OK,
       message: 'note sent successfully',
     });
