@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Expense } from './entities/expense.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,6 +11,7 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { CreateExpenseDto } from './dtos/create-expense.dto';
 import { User } from 'src/users/entities/user.entity';
 import { CategoryTypeEnum } from 'src/categories/enums/category-type-enum';
+import { Income } from 'src/incomes/entities/income.entity';
 
 @Injectable()
 export class ExpensesService {
@@ -62,5 +67,25 @@ export class ExpensesService {
     });
 
     return userExpenses;
+  }
+
+  async findOne(id: number, user: User) {
+    const expense = await this.expenseRepository.findOne({
+      relations: ['user', 'category', 'bankCard'],
+      where: {
+        id,
+        user: { id: user.id },
+      },
+    });
+
+    if (!expense) {
+      throw new NotFoundException('not found expense');
+    }
+
+    if (expense?.user.id !== user.id) {
+      throw new UnauthorizedException('forbidden route');
+    }
+
+    return expense;
   }
 }

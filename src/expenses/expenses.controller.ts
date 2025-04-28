@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Param,
   Post,
   Query,
   Res,
@@ -48,6 +49,22 @@ export class ExpensesController {
       parseInt(limit),
       user,
     );
+
+    return res.status(HttpStatus.OK).json({
+      data: expense,
+      statusCode: HttpStatus.OK,
+      message: 'expense send successfully',
+    });
+  }
+
+  @Get('/:id')
+  @UseGuards(JwtAuthGuard)
+  async findOne(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    const expense = await this.expensesService.findOne(parseInt(id), user);
 
     return res.status(HttpStatus.OK).json({
       data: expense,
