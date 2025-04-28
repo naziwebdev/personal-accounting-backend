@@ -63,4 +63,18 @@ export class NotesService {
 
     return await this.notesRepository.save(note);
   }
+
+  async remove(id: number, user: User) {
+    const note = await this.notesRepository.findOne({
+      relations: ['user'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!note) {
+      throw new NotFoundException('not found note');
+    }
+
+    await this.notesRepository.remove(note);
+    return true;
+  }
 }
