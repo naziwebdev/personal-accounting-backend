@@ -10,6 +10,7 @@ import { CreateIncomeDto } from './dtos/create-income.dto';
 import { User } from 'src/users/entities/user.entity';
 import { BankCardsService } from 'src/bank-cards/bank-cards.service';
 import { UpdateIncomeDto } from './dtos/update-income.dto';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Injectable()
 export class IncomesService {
@@ -17,7 +18,7 @@ export class IncomesService {
     @InjectRepository(Income)
     private incomesRepository: Repository<Income>,
     private bankCardService: BankCardsService,
-  
+    private categoriesService: CategoriesService,
   ) {}
 
   async create(createIncomeDto: CreateIncomeDto, user: User) {
@@ -28,6 +29,16 @@ export class IncomesService {
       );
       if (!card) {
         throw new NotFoundException('not found bank-card');
+      }
+    }
+
+    if (createIncomeDto.category_id) {
+      const category = await this.categoriesService.findById(
+        createIncomeDto.category_id,
+      );
+
+      if (!category) {
+        throw new NotFoundException('not found category');
       }
     }
     const income = await this.incomesRepository.create({
@@ -85,6 +96,16 @@ export class IncomesService {
       }
     }
 
+    if (updateIncomeDto.category_id) {
+      const category = await this.categoriesService.findById(
+        updateIncomeDto.category_id,
+      );
+
+      if (!category) {
+        throw new NotFoundException('not found category');
+      }
+    }
+
     const income = await this.incomesRepository.findOne({
       relations: ['user', 'category', 'bankCard'],
       where: { id, user: { id: user.id } },
@@ -118,8 +139,8 @@ export class IncomesService {
     }
 
     if (income?.user.id !== user.id) {
-        throw new UnauthorizedException('forbidden route');
-      }
+      throw new UnauthorizedException('forbidden route');
+    }
 
     await this.incomesRepository.remove(income);
   }
