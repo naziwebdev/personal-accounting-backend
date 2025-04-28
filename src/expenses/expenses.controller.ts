@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Res,
   UseGuards,
@@ -15,6 +16,7 @@ import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { CreateExpenseDto } from './dtos/create-expense.dto';
 import { Response } from 'express';
+import { UpdateExpenseDto } from './dtos/update-expense.dto';
 
 @Controller('expenses')
 export class ExpensesController {
@@ -70,6 +72,23 @@ export class ExpensesController {
       data: expense,
       statusCode: HttpStatus.OK,
       message: 'expense send successfully',
+    });
+  }
+
+  @Put('/:id')
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateExpenseDto,
+    @Res() res: Response,
+  ) {
+    const expense = await this.expensesService.update(body, parseInt(id), user);
+
+    return res.status(HttpStatus.OK).json({
+      data: expense,
+      statusCode: HttpStatus.OK,
+      message: 'expense updated successfully',
     });
   }
 }
