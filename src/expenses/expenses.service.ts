@@ -133,4 +133,21 @@ export class ExpensesService {
 
     return await this.expenseRepository.save(expense);
   }
+
+  async remove(id: number, user: User) {
+    const expense = await this.expenseRepository.findOne({
+      relations: ['user'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!expense) {
+      throw new NotFoundException('not found expense');
+    }
+
+    if (expense?.user.id !== user.id) {
+      throw new UnauthorizedException('forbidden route');
+    }
+
+    await this.expenseRepository.remove(expense);
+  }
 }
