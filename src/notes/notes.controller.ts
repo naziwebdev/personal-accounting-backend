@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Res,
   UseGuards,
@@ -15,6 +16,7 @@ import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { CreateNoteDto } from './dtos/create-note.dto';
 import { Response } from 'express';
+import { UpdateNoteDto } from './dtos/update-note.dto';
 
 @Controller('notes')
 export class NotesController {
@@ -70,6 +72,23 @@ export class NotesController {
       data: note,
       statusCode: HttpStatus.OK,
       message: 'note sent successfully',
+    });
+  }
+
+  @Put('/:id')
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateNoteDto,
+    @Res() res: Response,
+  ) {
+    const note = await this.notesService.update(body, parseInt(id), user);
+
+    return res.status(HttpStatus.OK).json({
+      data: note,
+      statusCode: HttpStatus.OK,
+      message: 'note updated successfully',
     });
   }
 }

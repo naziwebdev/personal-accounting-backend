@@ -4,6 +4,7 @@ import { Note } from './entities/note.entity';
 import { Repository } from 'typeorm';
 import { CreateNoteDto } from './dtos/create-note.dto';
 import { User } from 'src/users/entities/user.entity';
+import { UpdateNoteDto } from './dtos/update-note.dto';
 
 @Injectable()
 export class NotesService {
@@ -26,7 +27,7 @@ export class NotesService {
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
 
     const notes = await this.notesRepository.find({
-        relations:['user'],
+      relations: ['user'],
       where: { user: { id: user.id } },
       skip: (page - 1) * limit,
       take: limit,
@@ -35,16 +36,31 @@ export class NotesService {
     return notes;
   }
 
-  async findOne(id:number,user:User){
+  async findOne(id: number, user: User) {
     const note = await this.notesRepository.findOne({
-        relations:['user'],
-        where:{id,user:{id:user.id}}
-    })
+      relations: ['user'],
+      where: { id, user: { id: user.id } },
+    });
 
-    if(!note){
-        throw new NotFoundException('not found note')
+    if (!note) {
+      throw new NotFoundException('not found note');
     }
 
-    return note
+    return note;
+  }
+
+  async update(updateNoteDto: UpdateNoteDto, id: number, user: User) {
+    const note = await this.notesRepository.findOne({
+      relations: ['user'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!note) {
+      throw new NotFoundException('not found note');
+    }
+
+    Object.assign(note, updateNoteDto);
+
+    return await this.notesRepository.save(note);
   }
 }
