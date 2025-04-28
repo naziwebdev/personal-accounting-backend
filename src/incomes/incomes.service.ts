@@ -11,6 +11,7 @@ import { User } from 'src/users/entities/user.entity';
 import { BankCardsService } from 'src/bank-cards/bank-cards.service';
 import { UpdateIncomeDto } from './dtos/update-income.dto';
 import { CategoriesService } from 'src/categories/categories.service';
+import { CategoryTypeEnum } from 'src/categories/enums/category-type-enum';
 
 @Injectable()
 export class IncomesService {
@@ -35,6 +36,7 @@ export class IncomesService {
     if (createIncomeDto.category_id) {
       const category = await this.categoriesService.findById(
         createIncomeDto.category_id,
+        CategoryTypeEnum.INCOME
       );
 
       if (!category) {
@@ -99,6 +101,7 @@ export class IncomesService {
     if (updateIncomeDto.category_id) {
       const category = await this.categoriesService.findById(
         updateIncomeDto.category_id,
+        CategoryTypeEnum.INCOME
       );
 
       if (!category) {

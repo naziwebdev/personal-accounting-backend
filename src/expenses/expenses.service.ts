@@ -1,4 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Expense } from './entities/expense.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { BankCardsService } from 'src/bank-cards/bank-cards.service';
+import { CategoriesService } from 'src/categories/categories.service';
+import { CreateExpenseDto } from './dtos/create-expense.dto';
+import { User } from 'src/users/entities/user.entity';
+import { CategoryTypeEnum } from 'src/categories/enums/category-type-enum';
 
 @Injectable()
-export class ExpensesService {}
+export class ExpensesService {
+  constructor(
+    @InjectRepository(Expense)
+    private expenseRepository: Repository<Expense>,
+    private bankCardService: BankCardsService,
+    private categoriesService: CategoriesService,
+  ) {}
+
+  async create(createExpenseDto: CreateExpenseDto, user: User) {
+    if (createExpenseDto.bankCard_id) {
+      const card = await this.bankCardService.getOne(
+        createExpenseDto.bankCard_id,
+        user,
+      );
+      if (!card) {
+        throw new NotFoundException('not found bank-card');
+      }
+    }
+
+    if (createExpenseDto.category_id) {
+      const category = await this.categoriesService.findById(
+        createExpenseDto.category_id,
+        CategoryTypeEnum.EXPENSE,
+      );
+
+      if (!category) {
+        throw new NotFoundException('not found category');
+      }
+    }
+    const expense = await this.expenseRepository.create({
+      title: createExpenseDto.title,
+      price: createExpenseDto.price,
+      date: createExpenseDto.date,
+      description: createExpenseDto.description,
+      user,
+      category: { id: createExpenseDto.category_id },
+      bankCard: { id: createExpenseDto.bankCard_id },
+    });
+
+    return await this.expenseRepository.save(expense);
+  }
+}

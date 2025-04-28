@@ -89,8 +89,10 @@ export class CategoriesService {
     return true;
   }
 
-  async findById(id: number) {
-    const category = await this.categoriesRepository.findOne({ where: { id } });
+  async findById(id: number, type: CategoryTypeEnum) {
+    const category = await this.categoriesRepository.findOne({
+      where: { id, type },
+    });
 
     return category;
   }
