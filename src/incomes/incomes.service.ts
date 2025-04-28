@@ -57,6 +57,8 @@ export class IncomesService {
   }
 
   async findAll(page: number = 1, limit: number = 2, user: User) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 2 : Number(limit);
     const userIncomes = await this.incomesRepository.find({
       relations: ['user', 'category', 'bankCard'],
       where: { user: { id: user.id } },

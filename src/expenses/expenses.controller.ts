@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -30,6 +32,27 @@ export class ExpensesController {
       data: expense,
       statusCode: HttpStatus.CREATED,
       message: 'expense created successfully',
+    });
+  }
+
+  @Get('/')
+  @UseGuards(JwtAuthGuard)
+  async findAll(
+    @getUser() user: User,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Res() res: Response,
+  ) {
+    const expense = await this.expensesService.findAll(
+      parseInt(page),
+      parseInt(limit),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: expense,
+      statusCode: HttpStatus.OK,
+      message: 'expense send successfully',
     });
   }
 }

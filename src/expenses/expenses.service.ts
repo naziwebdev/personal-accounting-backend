@@ -50,4 +50,17 @@ export class ExpensesService {
 
     return await this.expenseRepository.save(expense);
   }
+
+  async findAll(page: number = 1, limit: number = 2, user: User) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 2 : Number(limit);
+    const userExpenses = await this.expenseRepository.find({
+      relations: ['user', 'category', 'bankCard'],
+      where: { user: { id: user.id } },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return userExpenses;
+  }
 }
