@@ -12,6 +12,7 @@ import { Category } from 'src/categories/entities/category.entity';
 import { BankCards } from 'src/bank-cards/entities/bank-card.entity';
 import { Income } from 'src/incomes/entities/income.entity';
 import { Expense } from 'src/expenses/entities/expense.entity';
+import { Note } from 'src/notes/entities/note.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -40,6 +41,9 @@ export class User {
 
   @OneToMany(() => Expense, (expense) => expense.user)
   expenses: Expense[];
+
+  @OneToMany(() => Note, (note) => note.user)
+  notes: Note[];
 
   @CreateDateColumn({
     name: 'created_at',

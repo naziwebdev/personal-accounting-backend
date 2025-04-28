@@ -8,6 +8,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { BankCardsModule } from './bank-cards/bank-cards.module';
 import { IncomesModule } from './incomes/incomes.module';
 import { ExpensesModule } from './expenses/expenses.module';
+import { NotesModule } from './notes/notes.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ExpensesModule } from './expenses/expenses.module';
     BankCardsModule,
     IncomesModule,
     ExpensesModule,
+    NotesModule,
   ],
   exports : [RedisModule]
 })
