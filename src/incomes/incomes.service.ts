@@ -17,6 +17,7 @@ export class IncomesService {
     @InjectRepository(Income)
     private incomesRepository: Repository<Income>,
     private bankCardService: BankCardsService,
+  
   ) {}
 
   async create(createIncomeDto: CreateIncomeDto, user: User) {

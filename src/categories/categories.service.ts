@@ -67,7 +67,7 @@ export class CategoriesService {
     return await this.categoriesRepository.save(category);
   }
 
-  async remove(id: number,user:User) {
+  async remove(id: number, user: User) {
     let category = null;
 
     if (user.role === 'admin') {
@@ -87,5 +87,11 @@ export class CategoriesService {
 
     await this.categoriesRepository.remove(category);
     return true;
+  }
+
+  async findById(id: number) {
+    const category = await this.categoriesRepository.findOne({ where: { id } });
+
+    return category;
   }
 }
