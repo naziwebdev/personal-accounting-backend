@@ -18,6 +18,20 @@ export class NotesService {
       user,
     });
 
-    return await this.notesRepository.save(note)
+    return await this.notesRepository.save(note);
+  }
+
+  async findAll(page: number, limit: number, user: User) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 2 : Number(limit);
+
+    const notes = await this.notesRepository.find({
+        relations:['user'],
+      where: { user: { id: user.id } },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return notes;
   }
 }

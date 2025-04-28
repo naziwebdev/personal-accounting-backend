@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -30,6 +32,27 @@ export class NotesController {
       data: note,
       statusCode: HttpStatus.CREATED,
       message: 'note created successfully',
+    });
+  }
+
+  @Get('/')
+  @UseGuards(JwtAuthGuard)
+  async findAll(
+    @getUser() user: User,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Res() res: Response,
+  ) {
+    const notes = await this.notesService.findAll(
+      parseInt(page),
+      parseInt(limit),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: notes,
+      statusCode: HttpStatus.OK,
+      message: 'note sent successfully',
     });
   }
 }
