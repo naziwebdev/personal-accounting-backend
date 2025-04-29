@@ -25,9 +25,18 @@ export class ReceivablesDebtsService {
     return await this.receivablesDebtsRepository.save(receivableOrDebt);
   }
 
-  async getByType(user: User, type: ReceivableDebtTypeEnum) {
+  async getByType(
+    page: number,
+    limit: number,
+    user: User,
+    type: ReceivableDebtTypeEnum,
+  ) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 2 : Number(limit);
     const receivablesOrDebts = await this.receivablesDebtsRepository.find({
       where: { type, user: { id: user.id } },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
     return receivablesOrDebts;
@@ -82,5 +91,31 @@ export class ReceivablesDebtsService {
     Object.assign(receivableOrDebt, updateReceivableDebtDto);
 
     return await this.receivablesDebtsRepository.save(receivableOrDebt);
+  }
+
+  async getByStatus(
+    page: number,
+    limit: number,
+    status: ReceivableDebtStatusEnum,
+    user: User,
+  ) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 2 : Number(limit);
+    const receivablesOrDebts = await this.receivablesDebtsRepository.find({
+      where: {
+        status,
+        user: { id: user.id },
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    if (!receivablesOrDebts) {
+      throw new NotFoundException(
+        'not found receivablesOrDebts with this status',
+      );
+    }
+
+    return receivablesOrDebts;
   }
 }

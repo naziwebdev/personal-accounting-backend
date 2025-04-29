@@ -20,6 +20,7 @@ import { Response } from 'express';
 import { ReceivableDebtTypeEnum } from './enums/receivable-debt-type-enum';
 import { UpdateReceivableDebtStatusDto } from './dtos/update-receivable-debt-status';
 import { UpdateReceivableDebtDto } from './dtos/update-receivable-debt.dto';
+import { ReceivableDebtStatusEnum } from './enums/receivable-debt-status';
 
 @Controller('receivables-debts')
 export class ReceivablesDebtsController {
@@ -46,16 +47,42 @@ export class ReceivablesDebtsController {
     });
   }
 
-  @Get('/')
+  @Get('/type')
   @UseGuards(JwtAuthGuard)
   async findByType(
     @getUser() user: User,
     @Query('type') type: ReceivableDebtTypeEnum,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
     @Res() res: Response,
   ) {
     const receivablesOrDebts = await this.receivablesDebtsService.getByType(
+      parseInt(page),
+      parseInt(limit),
       user,
       type,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: receivablesOrDebts,
+      statusCode: HttpStatus.OK,
+      message: 'receivable/debt sent successfully',
+    });
+  }
+  @Get('/status')
+  @UseGuards(JwtAuthGuard)
+  async findByStatus(
+    @getUser() user: User,
+    @Query('status') status: ReceivableDebtStatusEnum,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Res() res: Response,
+  ) {
+    const receivablesOrDebts = await this.receivablesDebtsService.getByStatus(
+      parseInt(page),
+      parseInt(limit),
+      status,
+      user,
     );
 
     return res.status(HttpStatus.OK).json({
