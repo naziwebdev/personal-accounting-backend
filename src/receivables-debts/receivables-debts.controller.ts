@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
@@ -150,6 +151,22 @@ export class ReceivablesDebtsController {
       data: receivableOrDebt,
       statusCode: HttpStatus.OK,
       message: 'receivable/debt  updated successfully',
+    });
+  }
+
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
+  async remove(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.receivablesDebtsService.remove(parseInt(id), user);
+
+    return res.status(HttpStatus.OK).json({
+      data: '',
+      statusCode: HttpStatus.OK,
+      message: 'receivable/debt  removed successfully',
     });
   }
 }

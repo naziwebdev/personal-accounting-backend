@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ReceivableDebt } from './entities/receivable-debt.entity';
 import { Repository } from 'typeorm';
@@ -117,5 +121,24 @@ export class ReceivablesDebtsService {
     }
 
     return receivablesOrDebts;
+  }
+
+  async remove(id: number, user: User) {
+    const receivableOrDebt = await this.receivablesDebtsRepository.findOne({
+      relations: ['user'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!receivableOrDebt) {
+      throw new NotFoundException('not found receivableOrDebt');
+    }
+
+    if (receivableOrDebt?.user.id !== user.id) {
+      throw new UnauthorizedException('forbidden route');
+    }
+
+    await this.receivablesDebtsRepository.remove(receivableOrDebt);
+
+    return true;
   }
 }
