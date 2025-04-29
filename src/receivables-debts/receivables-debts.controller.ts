@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Param,
   Post,
   Query,
   Res,
@@ -51,6 +52,25 @@ export class ReceivablesDebtsController {
     const receivablesOrDebts = await this.receivablesDebtsService.getByType(
       user,
       type,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: receivablesOrDebts,
+      statusCode: HttpStatus.OK,
+      message: 'receivable/debt sent successfully',
+    });
+  }
+
+  @Get('/:id')
+  @UseGuards(JwtAuthGuard)
+  async findById(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    const receivablesOrDebts = await this.receivablesDebtsService.getById(
+      parseInt(id),
+      user,
     );
 
     return res.status(HttpStatus.OK).json({
