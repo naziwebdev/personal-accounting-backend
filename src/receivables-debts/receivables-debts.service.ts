@@ -4,6 +4,7 @@ import { ReceivableDebt } from './entities/receivable-debt.entity';
 import { Repository } from 'typeorm';
 import { CreateReceivableDebtDto } from './dtos/create-receivable-debt.dto';
 import { User } from 'src/users/entities/user.entity';
+import { ReceivableDebtTypeEnum } from './enums/receivable-debt-type-enum';
 
 @Injectable()
 export class ReceivablesDebtsService {
@@ -19,5 +20,13 @@ export class ReceivablesDebtsService {
     });
 
     return await this.receivablesDebtsRepository.save(receivableOrDebt);
+  }
+
+  async getByType(user: User, type: ReceivableDebtTypeEnum) {
+    const receivablesOrDebts = await this.receivablesDebtsRepository.find({
+      where: { type, user: { id: user.id } },
+    });
+
+    return receivablesOrDebts;
   }
 }

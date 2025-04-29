@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -12,6 +14,7 @@ import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { CreateReceivableDebtDto } from './dtos/create-receivable-debt.dto';
 import { Response } from 'express';
+import { ReceivableDebtTypeEnum } from './enums/receivable-debt-type-enum';
 
 @Controller('receivables-debts')
 export class ReceivablesDebtsController {
@@ -35,6 +38,25 @@ export class ReceivablesDebtsController {
       data: receivableOrDebt,
       statusCode: HttpStatus.CREATED,
       message: 'receivable/debt created successfully',
+    });
+  }
+
+  @Get('/')
+  @UseGuards(JwtAuthGuard)
+  async findByType(
+    @getUser() user: User,
+    @Query('type') type: ReceivableDebtTypeEnum,
+    @Res() res: Response,
+  ) {
+    const receivablesOrDebts = await this.receivablesDebtsService.getByType(
+      user,
+      type,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: receivablesOrDebts,
+      statusCode: HttpStatus.OK,
+      message: 'receivable/debt sent successfully',
     });
   }
 }
