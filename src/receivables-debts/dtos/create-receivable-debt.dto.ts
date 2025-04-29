@@ -25,13 +25,6 @@ export class CreateReceivableDebtDto {
   @IsNotEmpty({ message: 'person is required' })
   person: string;
 
-  @IsEnum(ReceivableDebtStatusEnum, {
-    message: 'status must be pendding or paid',
-  })
-  @IsNotEmpty({ message: 'price is required' })
-  @IsString()
-  status: ReceivableDebtStatusEnum;
-
   @IsDateString()
   @IsNotEmpty({ message: 'date is required' })
   date: string;
