@@ -7,6 +7,7 @@ import { User } from 'src/users/entities/user.entity';
 import { ReceivableDebtTypeEnum } from './enums/receivable-debt-type-enum';
 import { UpdateReceivableDebtStatusDto } from './dtos/update-receivable-debt-status';
 import { ReceivableDebtStatusEnum } from './enums/receivable-debt-status';
+import { UpdateReceivableDebtDto } from './dtos/update-receivable-debt.dto';
 
 @Injectable()
 export class ReceivablesDebtsService {
@@ -60,6 +61,25 @@ export class ReceivablesDebtsService {
     }
 
     receivableOrDebt.status = receivableDebtStatusDto.status;
+
+    return await this.receivablesDebtsRepository.save(receivableOrDebt);
+  }
+
+  async update(
+    updateReceivableDebtDto: UpdateReceivableDebtDto,
+    id: number,
+    user: User,
+  ) {
+    const receivableOrDebt = await this.receivablesDebtsRepository.findOne({
+      relations: ['user'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!receivableOrDebt) {
+      throw new NotFoundException('not found receivableOrDebt');
+    }
+
+    Object.assign(receivableOrDebt, updateReceivableDebtDto);
 
     return await this.receivablesDebtsRepository.save(receivableOrDebt);
   }

@@ -1,6 +1,5 @@
 import {
   IsString,
-  IsNotEmpty,
   IsOptional,
   IsNumber,
   IsEnum,
@@ -12,20 +11,20 @@ export class UpdateReceivableDebtDto {
   @IsEnum(ReceivableDebtTypeEnum, {
     message: 'type must be receivable or debt',
   })
-  @IsNotEmpty({ message: 'type is required' })
+  @IsOptional()
   @IsString()
   type: ReceivableDebtTypeEnum;
 
   @IsNumber()
-  @IsNotEmpty({ message: 'price is required' })
+  @IsOptional()
   price: number;
 
   @IsString()
-  @IsNotEmpty({ message: 'person is required' })
+  @IsOptional()
   person: string;
 
   @IsDateString()
-  @IsNotEmpty({ message: 'date is required' })
+  @IsOptional()
   date: string;
 
   @IsOptional()
