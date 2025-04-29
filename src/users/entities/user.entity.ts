@@ -13,6 +13,7 @@ import { BankCards } from 'src/bank-cards/entities/bank-card.entity';
 import { Income } from 'src/incomes/entities/income.entity';
 import { Expense } from 'src/expenses/entities/expense.entity';
 import { Note } from 'src/notes/entities/note.entity';
+import { ReceivableDebt } from 'src/receivables-debts/entities/receivable-debt.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -44,6 +45,9 @@ export class User {
 
   @OneToMany(() => Note, (note) => note.user)
   notes: Note[];
+
+  @OneToMany(() => ReceivableDebt, (receivableDebt) => receivableDebt.user)
+  receivablesDebts: ReceivableDebt[];
 
   @CreateDateColumn({
     name: 'created_at',
