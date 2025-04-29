@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { CreateReceivableDebtDto } from './dtos/create-receivable-debt.dto';
 import { User } from 'src/users/entities/user.entity';
 import { ReceivableDebtTypeEnum } from './enums/receivable-debt-type-enum';
+import { UpdateReceivableDebtStatusDto } from './dtos/update-receivable-debt-status';
+import { ReceivableDebtStatusEnum } from './enums/receivable-debt-status';
 
 @Injectable()
 export class ReceivablesDebtsService {
@@ -32,7 +34,7 @@ export class ReceivablesDebtsService {
 
   async getById(id: number, user: User) {
     const receivableOrDebt = await this.receivablesDebtsRepository.findOne({
-        relations:['user'],
+      relations: ['user'],
       where: { id, user: { id: user.id } },
     });
 
@@ -41,5 +43,24 @@ export class ReceivablesDebtsService {
     }
 
     return receivableOrDebt;
+  }
+
+  async updateStatus(
+    receivableDebtStatusDto: UpdateReceivableDebtStatusDto,
+    id: number,
+    user: User,
+  ) {
+    const receivableOrDebt = await this.receivablesDebtsRepository.findOne({
+      relations: ['user'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!receivableOrDebt) {
+      throw new NotFoundException('not found receivableOrDebt');
+    }
+
+    receivableOrDebt.status = receivableDebtStatusDto.status;
+
+    return await this.receivablesDebtsRepository.save(receivableOrDebt);
   }
 }

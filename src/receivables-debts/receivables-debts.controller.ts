@@ -4,7 +4,9 @@ import {
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
+  Put,
   Query,
   Res,
   UseGuards,
@@ -16,6 +18,7 @@ import { User } from 'src/users/entities/user.entity';
 import { CreateReceivableDebtDto } from './dtos/create-receivable-debt.dto';
 import { Response } from 'express';
 import { ReceivableDebtTypeEnum } from './enums/receivable-debt-type-enum';
+import { UpdateReceivableDebtStatusDto } from './dtos/update-receivable-debt-status';
 
 @Controller('receivables-debts')
 export class ReceivablesDebtsController {
@@ -77,6 +80,27 @@ export class ReceivablesDebtsController {
       data: receivablesOrDebts,
       statusCode: HttpStatus.OK,
       message: 'receivable/debt sent successfully',
+    });
+  }
+
+  @Patch('/:id/status')
+  @UseGuards(JwtAuthGuard)
+  async updateStatus(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateReceivableDebtStatusDto,
+    @Res() res: Response,
+  ) {
+    const receivableOrDebt = await this.receivablesDebtsService.updateStatus(
+      body,
+      parseInt(id),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: receivableOrDebt,
+      statusCode: HttpStatus.OK,
+      message: 'receivable/debt status updated successfully',
     });
   }
 }

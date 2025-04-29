@@ -5,7 +5,7 @@ export class UpdateReceivableDebtStatusDto {
   @IsEnum(ReceivableDebtStatusEnum, {
     message: 'status must be pendding or paid',
   })
-  @IsNotEmpty({ message: 'price is required' })
+  @IsNotEmpty({ message: 'status is required' })
   @IsString()
   status: ReceivableDebtStatusEnum;
 }
