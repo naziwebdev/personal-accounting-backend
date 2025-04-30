@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Check } from './entities/check.entity';
 import { Repository } from 'typeorm';
 import { CreateCheckDto } from './dtos/create-check.dto';
 import { User } from 'src/users/entities/user.entity';
+import { CheckTypeEnum } from './enums/check-type-enum';
 
 @Injectable()
 export class ChecksService {
@@ -30,6 +31,28 @@ export class ChecksService {
       skip: (page - 1) * limit,
       take: limit,
     });
+
+    return checks;
+  }
+
+  async getByType(
+    page: number,
+    limit: number,
+    type: CheckTypeEnum,
+    user: User,
+  ) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 2 : Number(limit);
+    const checks = await this.checksRepository.find({
+      relations: ['user'],
+      where: { type, user: { id: user.id } },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    if (!checks) {
+      throw new NotFoundException('not found check with this type');
+    }
 
     return checks;
   }

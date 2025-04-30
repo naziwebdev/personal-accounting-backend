@@ -14,6 +14,7 @@ import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
+import { CheckTypeEnum } from './enums/check-type-enum';
 
 @Controller('checks')
 export class ChecksController {
@@ -46,6 +47,29 @@ export class ChecksController {
     const checks = await this.checksService.getAll(
       parseInt(page),
       parseInt(limit),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: checks,
+      statusCode: HttpStatus.CREATED,
+      message: 'checks sent successfully',
+    });
+  }
+
+  @Get('/type')
+  @UseGuards(JwtAuthGuard)
+  async findByType(
+    @getUser() user: User,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Query('type') type: CheckTypeEnum,
+    @Res() res: Response,
+  ) {
+    const checks = await this.checksService.getByType(
+      parseInt(page),
+      parseInt(limit),
+      type,
       user,
     );
 
