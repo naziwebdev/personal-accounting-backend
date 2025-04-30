@@ -12,15 +12,25 @@ export class ChecksService {
     private checksRepository: Repository<Check>,
   ) {}
 
-
-  async create(createCheckDto:CreateCheckDto,user:User){
+  async create(createCheckDto: CreateCheckDto, user: User) {
     const check = await this.checksRepository.create({
-        ...createCheckDto,
-        user
-    })
+      ...createCheckDto,
+      user,
+    });
 
-    return await this.checksRepository.save(check)
+    return await this.checksRepository.save(check);
   }
 
-  
+  async getAll(page: number, limit: number, user: User) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 2 : Number(limit);
+    const checks = await this.checksRepository.find({
+      relations: ['user'],
+      where: { user: { id: user.id } },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return checks;
+  }
 }
