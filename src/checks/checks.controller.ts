@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Param,
   Post,
   Query,
   Res,
@@ -53,7 +54,7 @@ export class ChecksController {
 
     return res.status(HttpStatus.OK).json({
       data: checks,
-      statusCode: HttpStatus.CREATED,
+      statusCode: HttpStatus.OK,
       message: 'checks sent successfully',
     });
   }
@@ -76,7 +77,7 @@ export class ChecksController {
 
     return res.status(HttpStatus.OK).json({
       data: checks,
-      statusCode: HttpStatus.CREATED,
+      statusCode: HttpStatus.OK,
       message: 'checks sent successfully',
     });
   }
@@ -99,7 +100,23 @@ export class ChecksController {
 
     return res.status(HttpStatus.OK).json({
       data: checks,
-      statusCode: HttpStatus.CREATED,
+      statusCode: HttpStatus.OK,
+      message: 'checks sent successfully',
+    });
+  }
+
+  @Get('/:id')
+  @UseGuards(JwtAuthGuard)
+  async findById(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    const check = await this.checksService.getById(parseInt(id), user);
+
+    return res.status(HttpStatus.OK).json({
+      data: check,
+      statusCode: HttpStatus.OK,
       message: 'checks sent successfully',
     });
   }

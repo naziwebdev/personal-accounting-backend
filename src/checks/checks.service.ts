@@ -79,4 +79,17 @@ export class ChecksService {
 
     return checks;
   }
+
+  async getById(id: number, user: User) {
+    const check = await this.checksRepository.findOne({
+      relations: ['user'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!check) {
+      throw new NotFoundException('not found check');
+    }
+
+    return check;
+  }
 }
