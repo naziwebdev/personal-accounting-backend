@@ -1,5 +1,6 @@
 import {
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -147,6 +148,11 @@ export class IncomesService {
       throw new UnauthorizedException('forbidden route');
     }
 
-    await this.incomesRepository.remove(income);
+ 
+    try {
+      await this.incomesRepository.remove(income);
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to delete');
+    }
   }
 }

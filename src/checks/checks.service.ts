@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Check } from './entities/check.entity';
 import { Repository } from 'typeorm';
@@ -139,7 +139,10 @@ export class ChecksService {
       throw new NotFoundException('not found check');
     }
 
-    await this.checksRepository.remove(check);
-    return true;
+    try {
+        await this.checksRepository.remove(check);
+      } catch (error) {
+        throw new InternalServerErrorException('Failed to delete the check');
+      }
   }
 }

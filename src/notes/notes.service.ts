@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Note } from './entities/note.entity';
 import { Repository } from 'typeorm';
@@ -74,7 +74,11 @@ export class NotesService {
       throw new NotFoundException('not found note');
     }
 
-    await this.notesRepository.remove(note);
-    return true;
+    
+    try {
+      await this.notesRepository.remove(note);
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to delete');
+    }
   }
 }

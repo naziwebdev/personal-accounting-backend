@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
@@ -85,8 +85,12 @@ export class CategoriesService {
       throw new NotFoundException('not found category');
     }
 
-    await this.categoriesRepository.remove(category);
-    return true;
+    try {
+      await this.categoriesRepository.remove(category);
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to delete');
+    }
+  
   }
 
   async findById(id: number, type: CategoryTypeEnum) {

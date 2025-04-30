@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BankCards } from './entities/bank-card.entity';
@@ -79,6 +79,11 @@ export class BankCardsService {
       throw new NotFoundException('not found card');
     }
 
-    await this.bankCardsRepository.remove(userCard);
+   
+    try {
+      await this.bankCardsRepository.remove(userCard);
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to delete');
+    }
   }
 }
