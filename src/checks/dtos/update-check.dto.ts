@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { CheckTypeEnum } from '../enums/check-type-enum';
 
-export class CreateCheckDto {
+export class UpdateCheckDto {
   @IsEnum(CheckTypeEnum, { message: 'type must be pay or receive' })
   @IsOptional()
   @IsString()
