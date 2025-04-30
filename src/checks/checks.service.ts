@@ -6,6 +6,7 @@ import { CreateCheckDto } from './dtos/create-check.dto';
 import { User } from 'src/users/entities/user.entity';
 import { CheckTypeEnum } from './enums/check-type-enum';
 import { CheckStatusEnum } from './enums/check-status-enum';
+import { UpdateCheckDto } from './dtos/update-check.dto';
 
 @Injectable()
 export class ChecksService {
@@ -91,5 +92,20 @@ export class ChecksService {
     }
 
     return check;
+  }
+
+  async update(updateCheckDto:UpdateCheckDto,id:number,user:User){
+    const check = await this.checksRepository.findOne({
+        relations: ['user'],
+        where: { id, user: { id: user.id } },
+      });
+  
+      if (!check) {
+        throw new NotFoundException('not found check');
+      }
+
+      Object.assign(check,updateCheckDto)
+
+      return await this.checksRepository.save(check)
   }
 }

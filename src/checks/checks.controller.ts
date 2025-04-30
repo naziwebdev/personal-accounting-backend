@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Res,
   UseGuards,
@@ -17,6 +18,7 @@ import { Response } from 'express';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { CheckTypeEnum } from './enums/check-type-enum';
 import { CheckStatusEnum } from './enums/check-status-enum';
+import { UpdateCheckDto } from './dtos/update-check.dto';
 
 @Controller('checks')
 export class ChecksController {
@@ -118,6 +120,23 @@ export class ChecksController {
       data: check,
       statusCode: HttpStatus.OK,
       message: 'checks sent successfully',
+    });
+  }
+
+  @Put('/:id')
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateCheckDto,
+    @Res() res: Response,
+  ) {
+    const check = await this.checksService.update(body, parseInt(id), user);
+
+    return res.status(HttpStatus.OK).json({
+      data: check,
+      statusCode: HttpStatus.OK,
+      message: 'checks updated successfully',
     });
   }
 }
