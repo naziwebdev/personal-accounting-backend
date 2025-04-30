@@ -35,8 +35,8 @@ export class Check {
   @Column({ nullable: false })
   payable: string;
 
-  @Column({ nullable: false })
-  issued: string;
+  @Column({ type: 'timestamp', nullable: false })
+  issued: Date;
 
   @Column({ type: 'timestamp', nullable: false })
   due_date: Date;
