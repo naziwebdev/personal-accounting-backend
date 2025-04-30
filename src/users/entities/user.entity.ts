@@ -14,6 +14,7 @@ import { Income } from 'src/incomes/entities/income.entity';
 import { Expense } from 'src/expenses/entities/expense.entity';
 import { Note } from 'src/notes/entities/note.entity';
 import { ReceivableDebt } from 'src/receivables-debts/entities/receivable-debt.entity';
+import { Check } from 'src/checks/entities/check.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -48,6 +49,9 @@ export class User {
 
   @OneToMany(() => ReceivableDebt, (receivableDebt) => receivableDebt.user)
   receivablesDebts: ReceivableDebt[];
+
+  @OneToMany(() => Check, (check) => check.user)
+  checks: Check[];
 
   @CreateDateColumn({
     name: 'created_at',

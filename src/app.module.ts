@@ -10,6 +10,7 @@ import { IncomesModule } from './incomes/incomes.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { NotesModule } from './notes/notes.module';
 import { ReceivablesDebtsModule } from './receivables-debts/receivables-debts.module';
+import { ChecksModule } from './checks/checks.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ReceivablesDebtsModule } from './receivables-debts/receivables-debts.mo
     ExpensesModule,
     NotesModule,
     ReceivablesDebtsModule,
+    ChecksModule,
   ],
   exports: [RedisModule],
 })
