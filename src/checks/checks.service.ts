@@ -128,4 +128,18 @@ export class ChecksService {
 
     return await this.checksRepository.save(check);
   }
+
+  async remove(id: number, user: User) {
+    const check = await this.checksRepository.findOne({
+      relations: ['user'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!check) {
+      throw new NotFoundException('not found check');
+    }
+
+    await this.checksRepository.remove(check);
+    return true;
+  }
 }
