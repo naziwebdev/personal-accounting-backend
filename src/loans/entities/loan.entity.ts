@@ -3,12 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { LoanStatusEnum } from '../enums/loan-status-enum';
 import { LoanPeriodEnum } from '../enums/loan-period-enum';
 import { User } from 'src/users/entities/user.entity';
+import { Installment } from './installment.entity';
 
 @Entity('loans')
 export class Loan {
@@ -56,6 +58,9 @@ export class Loan {
 
   @ManyToOne(() => User, (user) => user.loans)
   user: User;
+
+  @OneToMany(() => Installment, (installment) => installment.loan)
+  installments: Installment[];
 
   @CreateDateColumn({
     name: 'created_at',
