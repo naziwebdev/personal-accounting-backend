@@ -15,6 +15,7 @@ import { Expense } from 'src/expenses/entities/expense.entity';
 import { Note } from 'src/notes/entities/note.entity';
 import { ReceivableDebt } from 'src/receivables-debts/entities/receivable-debt.entity';
 import { Check } from 'src/checks/entities/check.entity';
+import { Loan } from 'src/loans/entities/loan.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -52,6 +53,9 @@ export class User {
 
   @OneToMany(() => Check, (check) => check.user)
   checks: Check[];
+
+  @OneToMany(() => Loan, (loan) => loan.user)
+  loans: Loan[];
 
   @CreateDateColumn({
     name: 'created_at',
