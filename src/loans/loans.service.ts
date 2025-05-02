@@ -90,4 +90,24 @@ export class LoansService {
 
     return loans;
   }
+
+  async getOne(id: number, user: User) {
+    const loan = await this.loansRepository.findOne({
+      relations: ['installments'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!loan) {
+      throw new NotFoundException('not found loan');
+    }
+
+    const remainInstallmentsForPay = await this.installmentsRepository.find({
+      where: { loan: { id: loan.id }, status: InstallmentStatusEnum.PENDDING },
+    });
+
+    return {
+      loan,
+      countOfRemainInstallmentsForPay: remainInstallmentsForPay.length,
+    };
+  }
 }

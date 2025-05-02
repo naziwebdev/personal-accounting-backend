@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Param,
   Post,
   Query,
   Res,
@@ -77,6 +78,22 @@ export class LoansController {
       data: loans,
       statusCode: HttpStatus.OK,
       message: 'loans sent successfully',
+    });
+  }
+
+  @Get('/:id')
+  @UseGuards(JwtAuthGuard)
+  async findOne(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    const loan = await this.loansService.getOne(parseInt(id), user);
+
+    return res.status(HttpStatus.OK).json({
+      data: loan,
+      statusCode: HttpStatus.OK,
+      message: 'loan sent successfully',
     });
   }
 }
