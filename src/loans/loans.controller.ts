@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
@@ -140,6 +141,22 @@ export class LoansController {
       data: installmentUpdated,
       statusCode: HttpStatus.OK,
       message: 'installment status  updated successfully',
+    });
+  }
+
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
+  async remove(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.loansService.remove(parseInt(id), user);
+
+    return res.status(HttpStatus.OK).json({
+      data: '',
+      statusCode: HttpStatus.OK,
+      message: 'loan deleted successfully',
     });
   }
 }
