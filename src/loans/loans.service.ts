@@ -10,6 +10,7 @@ import {
   InstallmentStatusEnum,
   LoanStatusEnum,
 } from './enums/loan-status-enum';
+import { UpdateLoanDto } from './dtos/update-loan.dto';
 
 @Injectable()
 export class LoansService {
@@ -21,8 +22,9 @@ export class LoansService {
   ) {}
 
   async create(createLoanDto: CreateLoanDto, user: User) {
-    const perInstallmentPrice =
-      createLoanDto.totalPrice / createLoanDto.countInstallment;
+    const perInstallmentPrice = parseFloat(
+      (createLoanDto.totalPrice / createLoanDto.countInstallment).toFixed(2),
+    );
 
     const installmentDates = calculateInstallmentsDates(
       new Date(createLoanDto.firstDateInstallment),
@@ -109,5 +111,44 @@ export class LoansService {
       loan,
       countOfRemainInstallmentsForPay: remainInstallmentsForPay.length,
     };
+  }
+
+  async update(updateLoanDto: UpdateLoanDto, id: number, user: User) {
+    const loan = await this.loansRepository.findOne({
+      relations: ['installments', 'user'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!loan) {
+      throw new NotFoundException('not found loan');
+    }
+
+    const totalPrice = updateLoanDto.totalPrice ?? loan.totalPrice;
+    const countInstallment =
+      updateLoanDto.countInstallment ?? loan.countInstallment;
+    const firstDateInstallment =
+      updateLoanDto.firstDateInstallment ?? loan.firstDateInstallment;
+    const periodInstallment =
+      updateLoanDto.periodInstallment ?? loan.periodInstallment;
+
+    const perInstallmentPrice = parseFloat(
+      (totalPrice / countInstallment).toFixed(2),
+    );
+
+    const installmentDates = calculateInstallmentsDates(
+      new Date(firstDateInstallment),
+      periodInstallment,
+      countInstallment,
+    );
+
+    Object.assign(loan, updateLoanDto);
+
+    loan.installments = installmentDates.map((dueDate, index) => ({
+      ...loan.installments[index],
+      price: perInstallmentPrice,
+      dueDate,
+    }));
+
+    return await this.loansRepository.save(loan);
   }
 }

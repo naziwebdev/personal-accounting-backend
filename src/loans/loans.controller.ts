@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Res,
   UseGuards,
@@ -16,6 +17,7 @@ import { User } from 'src/users/entities/user.entity';
 import { CreateLoanDto } from './dtos/create-loan.dto';
 import { Response } from 'express';
 import { LoanStatusEnum } from './enums/loan-status-enum';
+import { UpdateLoanDto } from './dtos/update-loan.dto';
 
 @Controller('loans')
 export class LoansController {
@@ -94,6 +96,27 @@ export class LoansController {
       data: loan,
       statusCode: HttpStatus.OK,
       message: 'loan sent successfully',
+    });
+  }
+
+  @Put('/:id')
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateLoanDto,
+    @Res() res: Response,
+  ) {
+    const loanUpdated = await this.loansService.update(
+      body,
+      parseInt(id),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: loanUpdated,
+      statusCode: HttpStatus.OK,
+      message: 'loan updated successfully',
     });
   }
 }
