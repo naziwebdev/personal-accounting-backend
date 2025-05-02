@@ -151,4 +151,49 @@ export class LoansService {
 
     return await this.loansRepository.save(loan);
   }
+
+  async updateInstallmentStatus(
+    id: number,
+    status: InstallmentStatusEnum,
+    user: User,
+  ) {
+    const installment = await this.installmentsRepository
+      .createQueryBuilder('installment')
+      .leftJoinAndSelect('installment.loan', 'loan')
+      .leftJoinAndSelect('loan.user', 'user')
+      .where('installment.id = :id', { id })
+      .andWhere('user.id = :userId', { userId: user.id })
+      .getOne();
+
+    if (!installment) {
+      throw new NotFoundException('Installment not found');
+    }
+
+    installment.status = status;
+    const savedInstallment =
+      await this.installmentsRepository.save(installment);
+
+    const loan = await this.loansRepository.findOne({
+      where: { id: installment.loan.id },
+      relations: ['installments'],
+    });
+
+    if (!loan) {
+      throw new NotFoundException('Loan not found');
+    }
+
+    const allPaid = loan.installments.every(
+      (inst) => inst.status === InstallmentStatusEnum.PAID,
+    );
+
+    if (allPaid) {
+      loan.status = LoanStatusEnum.PAID;
+      await this.loansRepository.save(loan);
+    } else {
+      loan.status = LoanStatusEnum.PENDDING;
+      await this.loansRepository.save(loan);
+    }
+
+    return savedInstallment;
+  }
 }

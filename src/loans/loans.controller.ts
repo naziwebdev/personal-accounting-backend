@@ -4,6 +4,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -18,6 +19,7 @@ import { CreateLoanDto } from './dtos/create-loan.dto';
 import { Response } from 'express';
 import { LoanStatusEnum } from './enums/loan-status-enum';
 import { UpdateLoanDto } from './dtos/update-loan.dto';
+import { UpdateStatusInstallment } from './dtos/update-installment-status.dto';
 
 @Controller('loans')
 export class LoansController {
@@ -117,6 +119,27 @@ export class LoansController {
       data: loanUpdated,
       statusCode: HttpStatus.OK,
       message: 'loan updated successfully',
+    });
+  }
+
+  @Patch('/installment/:id')
+  @UseGuards(JwtAuthGuard)
+  async updateStatusInstallment(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateStatusInstallment,
+    @Res() res: Response,
+  ) {
+    const installmentUpdated = await this.loansService.updateInstallmentStatus(
+      parseInt(id),
+      body.status,
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: installmentUpdated,
+      statusCode: HttpStatus.OK,
+      message: 'installment status  updated successfully',
     });
   }
 }
