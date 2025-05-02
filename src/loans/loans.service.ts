@@ -142,14 +142,18 @@ export class LoansService {
     );
 
     Object.assign(loan, updateLoanDto);
+    await this.loansRepository.save(loan);
 
-    loan.installments = installmentDates.map((dueDate, index) => ({
+    const updatedInstallments = installmentDates.map((dueDate, index) => ({
       ...loan.installments[index],
       price: perInstallmentPrice,
       dueDate,
+      loan,
     }));
 
-    return await this.loansRepository.save(loan);
+    await this.installmentsRepository.save(updatedInstallments);
+
+    return loan
   }
 
   async updateInstallmentStatus(
