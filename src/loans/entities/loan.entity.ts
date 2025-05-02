@@ -23,7 +23,7 @@ export class Loan {
   @Column({ name: 'giver_name', nullable: false })
   giverName: string;
 
-  @Column({ name: 'total_price', type: 'decimal', nullable: false })
+  @Column({ name: 'total_price', type: 'decimal', nullable: false ,scale: 2})
   totalPrice: number;
 
   @Column({ nullable: true })

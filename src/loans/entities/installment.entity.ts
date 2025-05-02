@@ -7,7 +7,7 @@ export class Installment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'decimal', nullable: false })
+  @Column({ type: 'decimal', nullable: false, scale: 2 })
   price: number;
 
   @Column({

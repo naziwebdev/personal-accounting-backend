@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Loan } from './entities/loan.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Installment } from './entities/installment.entity';
 import { CreateLoanDto } from './dtos/create-loan.dto';
 import { User } from 'src/users/entities/user.entity';
@@ -49,6 +49,21 @@ export class LoansService {
 
     await this.installmentsRepository.save(installments);
 
-    return loan;
+    return savedLoan;
+  }
+
+  async getAll(page: number, limit: number, user: User) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 2 : Number(limit);
+
+    const loans = await this.loansRepository.find({
+      relations: ['installments'],
+      where: { user: { id: user.id } },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: 'DESC' },
+    });
+
+    return loans;
   }
 }
