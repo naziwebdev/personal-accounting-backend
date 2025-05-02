@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Loan } from './entities/loan.entity';
 import { In, Repository } from 'typeorm';
@@ -63,6 +63,30 @@ export class LoansService {
       take: limit,
       order: { id: 'DESC' },
     });
+
+    return loans;
+  }
+
+  async getByStatus(
+    page: number,
+    limit: number,
+    status: LoanStatusEnum,
+    user: User,
+  ) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 2 : Number(limit);
+
+    const loans = await this.loansRepository.find({
+      relations: ['installments'],
+      where: { user: { id: user.id }, status },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: 'DESC' },
+    });
+
+    if (loans.length === 0) {
+      throw new NotFoundException('not found loan with this status');
+    }
 
     return loans;
   }
