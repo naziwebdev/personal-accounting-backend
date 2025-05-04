@@ -1,7 +1,5 @@
 import {
-  IsEnum,
   IsInt,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -9,20 +7,20 @@ import {
 } from 'class-validator';
 import { WatchlistItemStatusEnum } from '../enums/watchlist-status-enum';
 
-export class CreateWatchlistItemDto {
+export class UpdateWatchlistItemDto {
   @IsString()
-  @IsNotEmpty({ message: 'title is required' })
+  @IsOptional({ message: 'title is required' })
   @Length(3, 50, { message: 'min & max title length must be btw 3-50 chars' })
   title: string;
 
   @IsNumber()
-  @IsNotEmpty({
+  @IsOptional({
     message: 'price is required',
   })
   price: number;
 
   @IsInt()
-  @IsNotEmpty({
+  @IsOptional({
     message: 'count is required',
   })
   count: number;
@@ -31,14 +29,4 @@ export class CreateWatchlistItemDto {
   @IsOptional()
   @Length(3, 2500, { message: 'min & max title length must be btw 3-50 chars' })
   description: string;
-
-  @IsEnum(WatchlistItemStatusEnum, {
-    message: 'watchlist item status must be pendding/purchased',
-  })
-  @IsNotEmpty({message:'status is required'})
-  status: WatchlistItemStatusEnum;
-
-  @IsInt()
-  @IsNotEmpty({ message: 'watchlist id is required' })
-  watchlistId: number;
 }
