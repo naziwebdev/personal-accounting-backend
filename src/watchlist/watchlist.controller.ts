@@ -20,6 +20,7 @@ import { Response } from 'express';
 import { CreateWatchlistItemDto } from './dtos/create-watchlist-item.dto';
 import { UpdateWatchlistDto } from './dtos/update-watchlist.dto';
 import { UpdateWatchlistStatusDto } from './dtos/update-watchlist-status.dto';
+import { UpdateWatchlistItemDto } from './dtos/update-watchlist-item.dto';
 
 @Controller('watchlists')
 export class WatchlistController {
@@ -136,6 +137,27 @@ export class WatchlistController {
       data: item,
       statusCode: HttpStatus.CREATED,
       message: 'watchlist item created successfully',
+    });
+  }
+
+  @Put('/item/:id')
+  @UseGuards(JwtAuthGuard)
+  async updateWatchlistItem(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateWatchlistItemDto,
+    @Res() res: Response,
+  ) {
+    const item = await this.watchlistService.updateItem(
+      body,
+      parseInt(id),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: item,
+      statusCode: HttpStatus.OK,
+      message: 'item updated successfully',
     });
   }
 }

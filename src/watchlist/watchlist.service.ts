@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Watchlist } from './entities/watchlist.entity';
 import { Repository } from 'typeorm';
@@ -9,6 +13,7 @@ import { CreateWatchlistItemDto } from './dtos/create-watchlist-item.dto';
 import { calculateSavings } from './helpers/calculate-savings';
 import { UpdateWatchlistDto } from './dtos/update-watchlist.dto';
 import { UpdateWatchlistStatusDto } from './dtos/update-watchlist-status.dto';
+import { UpdateWatchlistItemDto } from './dtos/update-watchlist-item.dto';
 
 @Injectable()
 export class WatchlistService {
@@ -19,6 +24,7 @@ export class WatchlistService {
     private watchlistItemsRepository: Repository<WatchlistItem>,
   ) {}
 
+  //watchlist
   async createWatchlist(createWatchlist: CreateWatchlistDto, user: User) {
     const watchlist = await this.watchlistRepository.create({
       ...createWatchlist,
@@ -126,6 +132,8 @@ export class WatchlistService {
     return await this.watchlistRepository.save(watchlist);
   }
 
+  //watchlist-item
+
   async createItem(createItemDto: CreateWatchlistItemDto, user: User) {
     const watchlist = await this.watchlistRepository.findOne({
       where: { user: { id: user.id }, id: createItemDto.watchlistId },
@@ -145,5 +153,27 @@ export class WatchlistService {
     });
 
     return await this.watchlistItemsRepository.save(watchlistItem);
+  }
+
+  async updateItem(
+    updateWatchlistItemDto: UpdateWatchlistItemDto,
+    id: number,
+    user: User,
+  ) {
+    const item = await this.watchlistItemsRepository
+      .createQueryBuilder('watchlist_items')
+      .leftJoinAndSelect('watchlist_items.watchlist', 'watchlist')
+      .leftJoinAndSelect('watchlist.user', 'user')
+      .where('watchlist_items.id = :id', { id })
+      .andWhere('user.id = :userId', { userId: user.id })
+      .getOne();
+
+    if (!item) {
+      throw new NotFoundException('not found item');
+    }
+
+    Object.assign(item, updateWatchlistItemDto);
+
+    return await this.watchlistItemsRepository.save(item);
   }
 }
