@@ -14,6 +14,7 @@ import { calculateSavings } from './helpers/calculate-savings';
 import { UpdateWatchlistDto } from './dtos/update-watchlist.dto';
 import { UpdateWatchlistStatusDto } from './dtos/update-watchlist-status.dto';
 import { UpdateWatchlistItemDto } from './dtos/update-watchlist-item.dto';
+import { UpdateWatchlistItemStatusDto } from './dtos/update-watchlist-item-status.dto';
 
 @Injectable()
 export class WatchlistService {
@@ -173,6 +174,28 @@ export class WatchlistService {
     }
 
     Object.assign(item, updateWatchlistItemDto);
+
+    return await this.watchlistItemsRepository.save(item);
+  }
+
+  async updateItemStatus(
+    updateWatchlistItemStatusDto: UpdateWatchlistItemStatusDto,
+    id: number,
+    user: User,
+  ) {
+    const item = await this.watchlistItemsRepository
+      .createQueryBuilder('watchlist_items')
+      .leftJoinAndSelect('watchlist_items.watchlist', 'watchlist')
+      .leftJoinAndSelect('watchlist.user', 'user')
+      .where('watchlist_items.id = :id', { id })
+      .andWhere('user.id = :userId', { userId: user.id })
+      .getOne();
+
+    if (!item) {
+      throw new NotFoundException('not found item');
+    }
+
+    item.status = updateWatchlistItemStatusDto.status;
 
     return await this.watchlistItemsRepository.save(item);
   }

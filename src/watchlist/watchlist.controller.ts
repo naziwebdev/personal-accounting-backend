@@ -21,6 +21,7 @@ import { CreateWatchlistItemDto } from './dtos/create-watchlist-item.dto';
 import { UpdateWatchlistDto } from './dtos/update-watchlist.dto';
 import { UpdateWatchlistStatusDto } from './dtos/update-watchlist-status.dto';
 import { UpdateWatchlistItemDto } from './dtos/update-watchlist-item.dto';
+import { UpdateWatchlistItemStatusDto } from './dtos/update-watchlist-item-status.dto';
 
 @Controller('watchlists')
 export class WatchlistController {
@@ -158,6 +159,27 @@ export class WatchlistController {
       data: item,
       statusCode: HttpStatus.OK,
       message: 'item updated successfully',
+    });
+  }
+
+  @Patch('/item/:id')
+  @UseGuards(JwtAuthGuard)
+  async updateItemStatus(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateWatchlistItemStatusDto,
+    @Res() res: Response,
+  ) {
+    const item = await this.watchlistService.updateItemStatus(
+      body,
+      parseInt(id),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: item,
+      statusCode: HttpStatus.OK,
+      message: 'watchlist item status updated successfully',
     });
   }
 }
