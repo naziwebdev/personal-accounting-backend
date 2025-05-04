@@ -12,16 +12,16 @@ export const calculateSavings = (
 
   switch (period) {
     case WatchlistWaitingPeriodEnum.DAY:
-      return remainingAmount;
+      return Math.floor(remainingAmount);
 
     case WatchlistWaitingPeriodEnum.WEEK:
-      return remainingAmount / 7;
+      return Math.floor(remainingAmount / 7);
 
     case WatchlistWaitingPeriodEnum.MONTH:
-      return remainingAmount / 30;
+      return Math.floor(remainingAmount / 30);
 
     case WatchlistWaitingPeriodEnum.YEAR:
-      return remainingAmount / 365;
+      return Math.floor(remainingAmount / 365);
 
     default:
       return 0;

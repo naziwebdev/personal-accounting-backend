@@ -7,6 +7,7 @@ import { CreateWatchlistDto } from './dtos/create-watchlist.dto';
 import { User } from 'src/users/entities/user.entity';
 import { CreateWatchlistItemDto } from './dtos/create-watchlist-item.dto';
 import { calculateSavings } from './helpers/calculate-savings';
+import { UpdateWatchlistDto } from './dtos/update-watchlist.dto';
 
 @Injectable()
 export class WatchlistService {
@@ -86,6 +87,24 @@ export class WatchlistService {
     );
 
     return watchlistsUpdateField;
+  }
+
+  async updateWatchlist(
+    updatedWatchlistDto: UpdateWatchlistDto,
+    id: number,
+    user: User,
+  ) {
+    const watchlist = await this.watchlistRepository.findOne({
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!watchlist) {
+      throw new NotFoundException('not found watchlist');
+    }
+
+    Object.assign(watchlist, updatedWatchlistDto);
+
+    return await this.watchlistRepository.save(watchlist);
   }
 
   async createItem(createItemDto: CreateWatchlistItemDto, user: User) {
