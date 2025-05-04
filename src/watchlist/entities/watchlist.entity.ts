@@ -12,7 +12,7 @@ import { WatchlistWaitingPeriodEnum } from '../enums/watchlist-waiting-period-en
 import { User } from 'src/users/entities/user.entity';
 import { WatchlistItem } from './watchlist-item.entity';
 
-@Entity('watchlist')
+@Entity('watchlists')
 export class Watchlist {
   @PrimaryGeneratedColumn()
   id: number;
