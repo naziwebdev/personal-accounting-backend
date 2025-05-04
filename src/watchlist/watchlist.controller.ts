@@ -4,6 +4,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -18,6 +19,7 @@ import { CreateWatchlistDto } from './dtos/create-watchlist.dto';
 import { Response } from 'express';
 import { CreateWatchlistItemDto } from './dtos/create-watchlist-item.dto';
 import { UpdateWatchlistDto } from './dtos/update-watchlist.dto';
+import { UpdateWatchlistStatusDto } from './dtos/update-watchlist-status.dto';
 
 @Controller('watchlists')
 export class WatchlistController {
@@ -97,6 +99,27 @@ export class WatchlistController {
       data: watchlist,
       statusCode: HttpStatus.OK,
       message: 'watchlist updated successfully',
+    });
+  }
+
+  @Patch('/:id')
+  @UseGuards(JwtAuthGuard)
+  async updateWatchlistStatus(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateWatchlistStatusDto,
+    @Res() res: Response,
+  ) {
+    const watchlist = await this.watchlistService.updateWatchlistStatus(
+      body,
+      parseInt(id),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: watchlist,
+      statusCode: HttpStatus.OK,
+      message: 'watchlist status updated successfully',
     });
   }
 
