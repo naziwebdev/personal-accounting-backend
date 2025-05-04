@@ -16,6 +16,7 @@ import { Note } from 'src/notes/entities/note.entity';
 import { ReceivableDebt } from 'src/receivables-debts/entities/receivable-debt.entity';
 import { Check } from 'src/checks/entities/check.entity';
 import { Loan } from 'src/loans/entities/loan.entity';
+import { Watchlist } from 'src/watchlist/entities/watchlist.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -56,6 +57,9 @@ export class User {
 
   @OneToMany(() => Loan, (loan) => loan.user)
   loans: Loan[];
+
+  @OneToMany(() => Watchlist , (watchlist) => watchlist.user)
+  watchlists:Watchlist[]
 
   @CreateDateColumn({
     name: 'created_at',
