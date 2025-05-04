@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -33,6 +34,27 @@ export class WatchlistController {
       data: watchlist,
       statusCode: HttpStatus.CREATED,
       message: 'watchlist created successfully',
+    });
+  }
+
+  @Get('/')
+  @UseGuards(JwtAuthGuard)
+  async findWatchlists(
+    @getUser() user: User,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Res() res: Response,
+  ) {
+    const watchlists = await this.watchlistService.getAllWatchlists(
+      parseInt(page),
+      parseInt(limit),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: watchlists,
+      statusCode: HttpStatus.OK,
+      message: 'watchlists sent successfully',
     });
   }
 
