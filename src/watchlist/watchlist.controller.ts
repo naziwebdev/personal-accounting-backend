@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
+  Param,
   Post,
   Res,
   UseGuards,
@@ -31,6 +33,25 @@ export class WatchlistController {
       data: watchlist,
       statusCode: HttpStatus.CREATED,
       message: 'watchlist created successfully',
+    });
+  }
+
+  @Get('/:id')
+  @UseGuards(JwtAuthGuard)
+  async findOneWatchlist(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    const watchlist = await this.watchlistService.getOneWatchlist(
+      parseInt(id),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: watchlist,
+      statusCode: HttpStatus.OK,
+      message: 'watchlist sent successfully',
     });
   }
 

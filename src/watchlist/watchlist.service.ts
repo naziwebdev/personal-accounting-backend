@@ -26,12 +26,7 @@ export class WatchlistService {
     return await this.watchlistRepository.save(watchlist);
   }
 
-  async updateTotalPriceAndSavingsInWatchlist(watchlistId: number) {
-    const watchlist = await this.watchlistRepository.findOne({
-      relations: ['items'],
-      where: { id: watchlistId },
-    });
-
+  async updateTotalPriceAndSavingsInWatchlist(watchlist: Watchlist) {
     if (!watchlist) {
       throw new NotFoundException('not found watchlist');
     }
@@ -51,10 +46,10 @@ export class WatchlistService {
           )
         : 0;
 
-    await this.watchlistRepository.update(watchlist.id, {
-      requiredSavings: requiredSavingsMoney,
-      totalPrice,
-    });
+    watchlist.totalPrice = totalPrice;
+    watchlist.requiredSavingsPerDay = requiredSavingsMoney;
+
+    return await this.watchlistRepository.save(watchlist);
   }
 
   async createItem(createItemDto: CreateWatchlistItemDto, user: User) {
@@ -76,5 +71,21 @@ export class WatchlistService {
     });
 
     return await this.watchlistItemsRepository.save(watchlistItem);
+  }
+
+  async getOneWatchlist(id: number, user: User) {
+    const watchlist = await this.watchlistRepository.findOne({
+      relations: ['items'],
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!watchlist) {
+      throw new NotFoundException('not found watchlist');
+    }
+
+    const updatedWatchlist =
+      await this.updateTotalPriceAndSavingsInWatchlist(watchlist);
+
+    return updatedWatchlist;
   }
 }
