@@ -3,12 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { WatchlistStatusEnum } from '../enums/watchlist-status-enum';
 import { WatchlistWaitingPeriodEnum } from '../enums/watchlist-waiting-period-enum';
 import { User } from 'src/users/entities/user.entity';
+import { WatchlistItem } from './watchlist-item.entity';
 
 @Entity('watchlist')
 export class Watchlist {
@@ -45,6 +47,9 @@ export class Watchlist {
 
   @ManyToOne(() => User, (user) => user.watchlists)
   user: User;
+
+  @OneToMany(() => WatchlistItem, (watchlistItem) => watchlistItem.watchlist)
+  items: WatchlistItem[];
 
   @CreateDateColumn({
     name: 'created_at',
