@@ -12,6 +12,7 @@ import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { CreateWatchlistDto } from './dtos/create-watchlist.dto';
 import { Response } from 'express';
+import { CreateWatchlistItemDto } from './dtos/create-watchlist-item.dto';
 
 @Controller('watchlists')
 export class WatchlistController {
@@ -30,6 +31,22 @@ export class WatchlistController {
       data: watchlist,
       statusCode: HttpStatus.CREATED,
       message: 'watchlist created successfully',
+    });
+  }
+
+  @Post('/item')
+  @UseGuards(JwtAuthGuard)
+  async createItem(
+    @getUser() user: User,
+    @Body() body: CreateWatchlistItemDto,
+    @Res() res: Response,
+  ) {
+    const item = await this.watchlistService.createItem(body, user);
+
+    return res.status(HttpStatus.CREATED).json({
+      data: item,
+      statusCode: HttpStatus.CREATED,
+      message: 'watchlist item created successfully',
     });
   }
 }
