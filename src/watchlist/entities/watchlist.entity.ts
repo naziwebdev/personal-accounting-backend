@@ -20,7 +20,7 @@ export class Watchlist {
   @Column({ nullable: false })
   title: string;
 
-  @Column({ name: 'total_price', nullable: false })
+  @Column({ name: 'total_price', nullable: true })
   totalPrice: number;
 
   @Column({
@@ -42,7 +42,7 @@ export class Watchlist {
   @Column({ name: 'current_budget', nullable: false })
   currentBudget: number;
 
-  @Column({ name: 'required_savings_per_period', nullable: false })
+  @Column({ name: 'required_savings_per_period', nullable: true })
   requiredSavingsPerPeriod: number;
 
   @ManyToOne(() => User, (user) => user.watchlists)
