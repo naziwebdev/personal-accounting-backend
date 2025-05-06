@@ -23,6 +23,7 @@ import { UpdateWatchlistDto } from './dtos/update-watchlist.dto';
 import { UpdateWatchlistStatusDto } from './dtos/update-watchlist-status.dto';
 import { UpdateWatchlistItemDto } from './dtos/update-watchlist-item.dto';
 import { UpdateWatchlistItemStatusDto } from './dtos/update-watchlist-item-status.dto';
+import { WatchlistStatusEnum } from './enums/watchlist-status-enum';
 
 @Controller('watchlists')
 export class WatchlistController {
@@ -55,6 +56,29 @@ export class WatchlistController {
     const watchlists = await this.watchlistService.getAllWatchlists(
       parseInt(page),
       parseInt(limit),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: watchlists,
+      statusCode: HttpStatus.OK,
+      message: 'watchlists sent successfully',
+    });
+  }
+
+  @Get('/status')
+  @UseGuards(JwtAuthGuard)
+  async findWatchlistsByStatus(
+    @getUser() user: User,
+    @Query('status') status: WatchlistStatusEnum,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Res() res: Response,
+  ) {
+    const watchlists = await this.watchlistService.getWatchlistsByStatus(
+      parseInt(page),
+      parseInt(limit),
+      status,
       user,
     );
 

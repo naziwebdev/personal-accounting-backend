@@ -16,6 +16,7 @@ import { UpdateWatchlistDto } from './dtos/update-watchlist.dto';
 import { UpdateWatchlistStatusDto } from './dtos/update-watchlist-status.dto';
 import { UpdateWatchlistItemDto } from './dtos/update-watchlist-item.dto';
 import { UpdateWatchlistItemStatusDto } from './dtos/update-watchlist-item-status.dto';
+import { WatchlistStatusEnum } from './enums/watchlist-status-enum';
 
 @Injectable()
 export class WatchlistService {
@@ -96,6 +97,29 @@ export class WatchlistService {
     );
 
     return watchlistsUpdateField;
+  }
+
+  async getWatchlistsByStatus(
+    page: number,
+    limit: number,
+    status: WatchlistStatusEnum,
+    user: User,
+  ) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 2 : Number(limit);
+
+    const watchlists = await this.watchlistRepository.find({
+      relations: ['items'],
+      where: { status, user: { id: user.id } },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    if (watchlists.length === 0) {
+      throw new NotFoundException('not found watchlist with this status');
+    }
+
+    return watchlists;
   }
 
   async updateWatchlist(
