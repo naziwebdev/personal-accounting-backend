@@ -23,13 +23,13 @@ export class Reminder {
   @ManyToOne(() => User, (user) => user.reminders)
   user: User;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ name:'is_sent',type: 'boolean', default: false })
   isSent: boolean;
 
-  @Column({ type: 'timestamp' })
+  @Column({ name:'due_date',type: 'timestamp' })
   dueDate: Date;
 
-  @Column({ nullable: false })
+  @Column({ name:'entity_id',nullable: false })
   entityId: number;
 
   @CreateDateColumn({
