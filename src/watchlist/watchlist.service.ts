@@ -1,5 +1,6 @@
 import {
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -198,5 +199,25 @@ export class WatchlistService {
     item.status = updateWatchlistItemStatusDto.status;
 
     return await this.watchlistItemsRepository.save(item);
+  }
+
+  async removeItem(id: number, user: User) {
+    const item = await this.watchlistItemsRepository
+      .createQueryBuilder('watchlist_items')
+      .leftJoinAndSelect('watchlist_items.watchlist', 'watchlist')
+      .leftJoinAndSelect('watchlist.user', 'user')
+      .where('watchlist_items.id = :id', { id })
+      .andWhere('user.id = :userId', { userId: user.id })
+      .getOne();
+
+    if (!item) {
+      throw new NotFoundException('not found item');
+    }
+
+    try {
+      await this.watchlistItemsRepository.remove(item);
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to delete');
+    }
   }
 }

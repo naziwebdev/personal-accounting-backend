@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
@@ -180,6 +181,22 @@ export class WatchlistController {
       data: item,
       statusCode: HttpStatus.OK,
       message: 'watchlist item status updated successfully',
+    });
+  }
+
+  @Delete('/item/:id')
+  @UseGuards(JwtAuthGuard)
+  async removeItem(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.watchlistService.removeItem(parseInt(id), user);
+
+    return res.status(HttpStatus.OK).json({
+      data: '',
+      statusCode: HttpStatus.OK,
+      message: 'watchlist item deleted successfully',
     });
   }
 }
