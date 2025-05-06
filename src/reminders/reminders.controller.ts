@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
+  Param,
   Post,
   Query,
   Res,
@@ -53,6 +55,26 @@ export class RemindersController {
       data: reminders,
       statusCode: HttpStatus.OK,
       message: 'reminders sent successfully',
+    });
+  }
+
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
+  async remove(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.remindersService.remove(
+      parseInt(id),
+
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: '',
+      statusCode: HttpStatus.OK,
+      message: 'reminders deleted successfully',
     });
   }
 }

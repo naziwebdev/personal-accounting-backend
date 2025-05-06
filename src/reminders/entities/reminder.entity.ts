@@ -9,6 +9,7 @@ import {
 import { ReminderTypeEnum } from '../enums/reminder-type-enum';
 import { User } from 'src/users/entities/user.entity';
 
+
 @Entity('reminders')
 export class Reminder {
   @PrimaryGeneratedColumn()
