@@ -134,6 +134,34 @@ export class WatchlistService {
     return await this.watchlistRepository.save(watchlist);
   }
 
+  async removeWatchlist(id: number, user: User) {
+    const watchlist = await this.watchlistRepository.findOne({
+      where: { id, user: { id: user.id } },
+    });
+
+    if (!watchlist) {
+      throw new NotFoundException('not found watchlist');
+    }
+
+    const items = await this.watchlistItemsRepository.find({
+      where: { watchlist: { id: watchlist.id } },
+    });
+
+    if (items.length !== 0) {
+      try {
+        await this.watchlistItemsRepository.remove(items);
+      } catch (error) {
+        throw new InternalServerErrorException('delete was faild');
+      }
+    }
+
+    try {
+      await this.watchlistRepository.remove(watchlist);
+    } catch (error) {
+      throw new InternalServerErrorException('delete was faild');
+    }
+  }
+
   //watchlist-item
 
   async createItem(createItemDto: CreateWatchlistItemDto, user: User) {

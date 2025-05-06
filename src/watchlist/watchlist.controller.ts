@@ -126,6 +126,22 @@ export class WatchlistController {
     });
   }
 
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
+  async removeWatchlist(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    await this.watchlistService.removeWatchlist(parseInt(id), user);
+
+    return res.status(HttpStatus.OK).json({
+      data: '',
+      statusCode: HttpStatus.OK,
+      message: 'watchlist deleted successfully',
+    });
+  }
+
   @Post('/item')
   @UseGuards(JwtAuthGuard)
   async createItem(
