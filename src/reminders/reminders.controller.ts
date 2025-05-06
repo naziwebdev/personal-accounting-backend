@@ -1,7 +1,35 @@
-import { Controller } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpStatus,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { RemindersService } from './reminders.service';
+import { JwtAuthGuard } from 'src/guards/auth.guard';
+import { getUser } from 'src/decorators/get-user.decorator';
+import { User } from 'src/users/entities/user.entity';
+import { CreateReminderDto } from './dtos/create-reminder.dto';
+import { Response } from 'express';
 
 @Controller('reminders')
 export class RemindersController {
   constructor(private readonly remindersService: RemindersService) {}
+
+  @Post('/')
+  @UseGuards(JwtAuthGuard)
+  async create(
+    @getUser() user: User,
+    @Body() body: CreateReminderDto,
+    @Res() res: Response,
+  ) {
+    const reminder = await this.remindersService.create(body, user);
+
+    return res.status(HttpStatus.CREATED).json({
+      data: reminder,
+      statusCode: HttpStatus.CREATED,
+      message: 'reminder created successfully',
+    });
+  }
 }

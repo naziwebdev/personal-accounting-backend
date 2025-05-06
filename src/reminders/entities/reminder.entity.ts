@@ -14,9 +14,6 @@ export class Reminder {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true })
-  message: string;
-
   @Column({ type: 'enum', enum: ReminderTypeEnum, nullable: false })
   type: ReminderTypeEnum;
 

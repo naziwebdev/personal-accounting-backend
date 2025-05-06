@@ -9,12 +9,8 @@ import {
 import { ReminderTypeEnum } from '../enums/reminder-type-enum';
 
 export class CreateReminderDto {
-  @IsString()
-  @IsOptional()
-  message: string;
-
   @IsEnum(ReminderTypeEnum, {
-    message: 'type must be installment or check or debt_receivable',
+    message: 'type must be loan or check or debt/receivable',
   })
   @IsNotEmpty({ message: 'type is required' })
   type: ReminderTypeEnum;

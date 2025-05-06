@@ -1,7 +1,7 @@
 export enum ReminderTypeEnum {
   CHECK = 'check',
 
-  INSTALLMENT = 'installment',
+  LOAN = 'loan',
 
   DEBT_RECEIVABLE = 'debt/receivable',
 }
