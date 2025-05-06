@@ -13,6 +13,7 @@ import { ReceivablesDebtsModule } from './receivables-debts/receivables-debts.mo
 import { ChecksModule } from './checks/checks.module';
 import { LoansModule } from './loans/loans.module';
 import { WatchlistModule } from './watchlist/watchlist.module';
+import { RemindersModule } from './reminders/reminders.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { WatchlistModule } from './watchlist/watchlist.module';
     ChecksModule,
     LoansModule,
     WatchlistModule,
+    RemindersModule,
   ],
   exports: [RedisModule],
 })
