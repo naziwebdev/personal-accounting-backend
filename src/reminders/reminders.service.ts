@@ -59,4 +59,17 @@ export class RemindersService {
 
     return await this.remindersRepository.save(reminder);
   }
+
+  async getAll(page: number, limit: number, user: User) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 2 : Number(limit);
+
+    const reminders = await this.remindersRepository.find({
+      where: { user: { id: user.id } },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return reminders;
+  }
 }
