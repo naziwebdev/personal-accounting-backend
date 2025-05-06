@@ -9,5 +9,6 @@ import { Installment } from './entities/installment.entity';
   imports: [TypeOrmModule.forFeature([Loan, Installment])],
   controllers: [LoansController],
   providers: [LoansService],
+  exports:[LoansService]
 })
 export class LoansModule {}

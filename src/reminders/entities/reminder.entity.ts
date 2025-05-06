@@ -23,8 +23,8 @@ export class Reminder {
   @Column({ name:'is_sent',type: 'boolean', default: false })
   isSent: boolean;
 
-  @Column({ name:'due_date',type: 'timestamp' })
-  dueDate: Date;
+  @Column({type:'jsonb',nullable:false})
+  dueDates: Date[];
 
   @Column({ name:'entity_id',nullable: false })
   entityId: number;

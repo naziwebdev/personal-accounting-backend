@@ -8,5 +8,6 @@ import { Check } from './entities/check.entity';
   imports: [TypeOrmModule.forFeature([Check])],
   controllers: [ChecksController],
   providers: [ChecksService],
+  exports: [ChecksService],
 })
 export class ChecksModule {}
