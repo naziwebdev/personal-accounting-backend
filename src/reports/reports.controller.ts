@@ -36,4 +36,23 @@ export class ReportsController {
       message: 'weekly income reports sent successfully',
     });
   }
+
+  @Get('/income-monthly')
+  @UseGuards(JwtAuthGuard)
+  async getMonthlyIncomeReport(
+    @getUser() user: User,
+    @Query('year') year: string,
+    @Res() res: Response,
+  ) {
+    const incomes = await this.reportsService.getMonthlyIncomeReport(
+      parseInt(year),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: incomes,
+      statusCodes: HttpStatus.OK,
+      message: 'monthly income reports sent successfully',
+    });
+  }
 }

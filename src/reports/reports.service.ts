@@ -52,4 +52,44 @@ export class ReportsService {
     });
     return allWeeks;
   }
+
+  async getMonthlyIncomeReport(year: number, user: User) {
+    const monthlyReports = await this.incomesRepository
+      .createQueryBuilder('income')
+      .select([
+        `TO_CHAR(income.date, 'YYYY-MM') AS month`,
+        `COALESCE(SUM(income.price), 0) AS totalIncome`,
+      ])
+      .where(`EXTRACT(YEAR FROM income.date) = :year`, { year })
+      .andWhere('income.userId = :userId', { userId: user.id })
+      .groupBy(`TO_CHAR(income.date, 'YYYY-MM')`)
+      .orderBy(`month`, 'ASC')
+      .getRawMany();
+
+    const allMonths = [
+      { month: '01', totalIncome: 0 },
+      { month: '02', totalIncome: 0 },
+      { month: '03', totalIncome: 0 },
+      { month: '04', totalIncome: 0 },
+      { month: '05', totalIncome: 0 },
+      { month: '06', totalIncome: 0 },
+      { month: '07', totalIncome: 0 },
+      { month: '08', totalIncome: 0 },
+      { month: '09', totalIncome: 0 },
+      { month: '10', totalIncome: 0 },
+      { month: '11', totalIncome: 0 },
+      { month: '12', totalIncome: 0 },
+    ];
+
+    monthlyReports.forEach((data: any) => {
+      const index = allMonths.findIndex(
+        (m) => m.month === data.month.split('-')[1],
+      );
+
+      if (index !== -1) {
+        allMonths[index].totalIncome = data.totalincome;
+      }
+    });
+    return allMonths;
+  }
 }
