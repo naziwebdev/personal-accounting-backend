@@ -76,4 +76,23 @@ export class ReportsController {
       message: 'weekly expense reports sent successfully',
     });
   }
+
+  @Get('/expense-monthly')
+  @UseGuards(JwtAuthGuard)
+  async getMonthlyExpenseReport(
+    @getUser() user: User,
+    @Query('year') year: string,
+    @Res() res: Response,
+  ) {
+    const expenses = await this.reportsService.getMonthlyExpenseReport(
+      parseInt(year),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: expenses,
+      statusCodes: HttpStatus.OK,
+      message: 'monthly expense reports sent successfully',
+    });
+  }
 }

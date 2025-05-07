@@ -138,4 +138,52 @@ export class ReportsService {
     });
     return allWeeks;
   }
+
+  async getMonthlyExpenseReport(year: number, user: User) {
+    const monthlyReports = await this.expensesRepository
+      .createQueryBuilder('expense')
+      .select([
+        `TO_CHAR(expense.date, 'YYYY-MM') AS month`,
+        `COALESCE(SUM(expense.price), 0) AS totalExpense`,
+      ])
+      .where(`EXTRACT(YEAR FROM expense.date) = :year`, { year })
+      .andWhere('expense.userId = :userId', { userId: user.id })
+      .groupBy(`TO_CHAR(expense.date, 'YYYY-MM')`)
+      .orderBy(`month`, 'ASC')
+      .getRawMany();
+
+    const allMonths = [
+      { month: '01', totalExpense: 0 },
+      { month: '02', totalExpense: 0 },
+      { month: '03', totalExpense: 0 },
+      { month: '04', totalExpense: 0 },
+      { month: '05', totalExpense: 0 },
+      { month: '06', totalExpense: 0 },
+      { month: '07', totalExpense: 0 },
+      { month: '08', totalExpense: 0 },
+      { month: '09', totalExpense: 0 },
+      { month: '10', totalExpense: 0 },
+      { month: '11', totalExpense: 0 },
+      { month: '12', totalExpense: 0 },
+    ];
+
+    monthlyReports.forEach((data: any) => {
+      const index = allMonths.findIndex(
+        (m) => m.month === data.month.split('-')[1],
+      );
+
+      if (index !== -1) {
+        allMonths[index].totalExpense = data.totalexpense;
+      }
+    });
+
+    const totalExpenseInYear = allMonths.reduce(
+      (total, value) => total + Number(value.totalExpense),
+      0,
+    );
+    return {
+      allMonths,
+      totalExpenseInYear,
+    };
+  }
 }
