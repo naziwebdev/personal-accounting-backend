@@ -14,12 +14,10 @@ import { ChecksModule } from './checks/checks.module';
 import { LoansModule } from './loans/loans.module';
 import { WatchlistModule } from './watchlist/watchlist.module';
 import { RemindersModule } from './reminders/reminders.module';
-import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

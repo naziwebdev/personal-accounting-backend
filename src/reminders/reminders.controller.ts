@@ -58,6 +58,18 @@ export class RemindersController {
     });
   }
 
+  @Get('/active')
+  @UseGuards(JwtAuthGuard)
+  async findActiveReminders(@getUser() user: User, @Res() res: Response) {
+    const reminders = await this.remindersService.getActiveReminder(user);
+
+    return res.status(HttpStatus.OK).json({
+      data: reminders,
+      statusCode: HttpStatus.OK,
+      message: 'reminders sent successfully',
+    });
+  }
+
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   async remove(
