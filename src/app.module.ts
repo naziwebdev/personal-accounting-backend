@@ -14,6 +14,7 @@ import { ChecksModule } from './checks/checks.module';
 import { LoansModule } from './loans/loans.module';
 import { WatchlistModule } from './watchlist/watchlist.module';
 import { RemindersModule } from './reminders/reminders.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { RemindersModule } from './reminders/reminders.module';
     LoansModule,
     WatchlistModule,
     RemindersModule,
+    ReportsModule,
   ],
   exports: [RedisModule],
 })

@@ -10,5 +10,6 @@ import { BankCardsModule } from 'src/bank-cards/bank-cards.module';
   imports:[TypeOrmModule.forFeature([Expense]),CategoriesModule,BankCardsModule],
   controllers: [ExpensesController],
   providers: [ExpensesService],
+  exports: [TypeOrmModule],
 })
 export class ExpensesModule {}

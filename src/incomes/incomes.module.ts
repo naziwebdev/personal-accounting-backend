@@ -10,6 +10,7 @@ import { CategoriesModule } from 'src/categories/categories.module';
   imports: [TypeOrmModule.forFeature([Income]),BankCardsModule,CategoriesModule],
   controllers: [IncomesController],
   providers: [IncomesService],
+  exports: [TypeOrmModule],
   
 })
 export class IncomesModule {}
