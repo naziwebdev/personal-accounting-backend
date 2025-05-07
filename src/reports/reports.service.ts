@@ -45,7 +45,6 @@ export class ReportsService {
 
     weeklyReport.forEach((data) => {
       const index = allWeeks.findIndex((w) => w.week === data.week);
-      console.log();
       if (index !== -1) {
         allWeeks[index].totalIncome = data.totalincome;
       }
@@ -90,6 +89,53 @@ export class ReportsService {
         allMonths[index].totalIncome = data.totalincome;
       }
     });
-    return allMonths;
+
+    const totalIncomeInYear = allMonths.reduce(
+      (total, value) => total + Number(value.totalIncome),
+      0,
+    );
+    return {
+      allMonths,
+      totalIncomeInYear,
+    };
+  }
+
+  async getWeeklyExpenseReport(year: number, month: number, user: User) {
+    const weeklyReport = await this.expensesRepository
+      .createQueryBuilder('expense')
+      .select([
+        `CASE 
+        WHEN EXTRACT(DAY FROM expense.date) BETWEEN 1 AND 7 THEN 'Week 1'
+        WHEN EXTRACT(DAY FROM expense.date) BETWEEN 8 AND 14 THEN 'Week 2'
+        WHEN EXTRACT(DAY FROM expense.date) BETWEEN 15 AND 21 THEN 'Week 3'
+        WHEN EXTRACT(DAY FROM expense.date) BETWEEN 22 AND 28 THEN 'Week 4'
+        ELSE 'Week 5'
+      END AS week`,
+        `COALESCE(SUM(expense.price), 0) AS totalExpense`,
+      ])
+      .where(`EXTRACT(YEAR FROM expense.date) = :year`, { year })
+      .andWhere(`EXTRACT(MONTH FROM expense.date) = :month`, { month })
+      .andWhere('expense.userId = :userId', { userId: user.id })
+
+      .groupBy(`week`)
+      .orderBy(`week`, 'ASC')
+      .getRawMany();
+
+    const allWeeks = [
+      { week: 'Week 1', totalExpense: 0 },
+      { week: 'Week 2', totalExpense: 0 },
+      { week: 'Week 3', totalExpense: 0 },
+      { week: 'Week 4', totalExpense: 0 },
+      { week: 'Week 5', totalExpense: 0 },
+    ];
+
+    weeklyReport.forEach((data) => {
+      const index = allWeeks.findIndex((w) => w.week === data.week);
+
+      if (index !== -1) {
+        allWeeks[index].totalExpense = data.totalexpense;
+      }
+    });
+    return allWeeks;
   }
 }
