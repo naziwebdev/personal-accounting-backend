@@ -95,4 +95,23 @@ export class ReportsController {
       message: 'monthly expense reports sent successfully',
     });
   }
+
+  @Get('/saving')
+  @UseGuards(JwtAuthGuard)
+  async getMonthlySavingReport(
+    @getUser() user: User,
+    @Query('year') year: string,
+    @Res() res: Response,
+  ) {
+    const savings = await this.reportsService.getMonthlySaveMoney(
+      parseInt(year),
+      user,
+    );
+
+    return res.status(HttpStatus.OK).json({
+      data: savings,
+      statusCodes: HttpStatus.OK,
+      message: 'monthly savings reports sent successfully',
+    });
+  }
 }

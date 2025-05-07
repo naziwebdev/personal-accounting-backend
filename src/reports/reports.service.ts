@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { use } from 'passport';
 import { Expense } from 'src/expenses/entities/expense.entity';
 import { Income } from 'src/incomes/entities/income.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -185,5 +186,58 @@ export class ReportsService {
       allMonths,
       totalExpenseInYear,
     };
+  }
+
+  async getMonthlySaveMoney(year: number, user: User) {
+    const incomeReport = await this.incomesRepository
+      .createQueryBuilder('income')
+      .select([
+        `TO_CHAR(income.date, 'MM') AS month`,
+        `COALESCE(SUM(income.price), 0) AS totalIncome`,
+      ])
+      .where(`EXTRACT(YEAR FROM income.date) = :year`, { year })
+      .andWhere('income.userId = :userId', { userId: user.id })
+      .groupBy(`TO_CHAR(income.date, 'MM')`)
+      .orderBy(`month`, 'ASC')
+      .getRawMany();
+
+    const expenseReport = await this.expensesRepository
+      .createQueryBuilder('expense')
+      .select([
+        `TO_CHAR(expense.date, 'MM') AS month`,
+        `COALESCE(SUM(expense.price), 0) AS totalExpense`,
+      ])
+      .where(`EXTRACT(YEAR FROM expense.date) = :year`, { year })
+      .andWhere('expense.userId = :userId', { userId: user.id })
+      .groupBy(`TO_CHAR(expense.date, 'MM')`)
+      .orderBy(`month`, 'ASC')
+      .getRawMany();
+
+    const allMonths = Array.from({ length: 12 }, (_, i) => ({
+      month: String(i + 1).padStart(2, '0'),
+      totalIncome: 0,
+      totalExpense: 0,
+      savings: 0,
+    }));
+
+    incomeReport.forEach((data) => {
+      const index = allMonths.findIndex((m) => m.month === data.month);
+      if (index !== -1) {
+        allMonths[index].totalIncome = Number(data.totalincome) || 0;
+      }
+    });
+
+    expenseReport.forEach((data) => {
+      const index = allMonths.findIndex((m) => m.month === data.month);
+      if (index !== -1) {
+        allMonths[index].totalExpense = Number(data.totalexpense) || 0;
+      }
+    });
+
+    allMonths.forEach((month) => {
+      month.savings = month.totalIncome - month.totalExpense;
+    });
+
+    return allMonths;
   }
 }
