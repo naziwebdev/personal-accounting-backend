@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
     IsString,
     IsNumber,
@@ -19,6 +20,7 @@ import {
     price: number;
   
     @IsDateString()
+    @Transform(({ value }) => new Date(value).toISOString())
     @IsNotEmpty({ message: 'date is required' })
     date: string; 
   

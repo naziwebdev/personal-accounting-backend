@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { CheckTypeEnum } from '../enums/check-type-enum';
 import { CheckStatusEnum } from '../enums/check-status-enum';
+import { Transform } from 'class-transformer';
 
 export class CreateCheckDto {
   @IsEnum(CheckTypeEnum, { message: 'type must be pay or receive' })
@@ -34,12 +35,14 @@ export class CreateCheckDto {
   @IsNotEmpty({ message: 'payable is required' })
   payable: string;
 
-  @IsDateString()
   @IsNotEmpty({ message: 'issued is required' })
+  @Transform(({ value }) => new Date(value).toISOString()) // ✅ Convert to ISO format
+  @IsDateString()
   issued: string;
 
-  @IsDateString()
   @IsNotEmpty({ message: 'due-date is required' })
+  @Transform(({ value }) => new Date(value).toISOString()) // ✅ Convert to ISO format
+  @IsDateString()
   due_date: string;
 
   @IsOptional()

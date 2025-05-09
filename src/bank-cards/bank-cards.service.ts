@@ -23,11 +23,14 @@ export class BankCardsService {
   }
 
   async getAll(user: User) {
+   
     const userCards = await this.bankCardsRepository.find({
       where: {
         user: { id: user.id },
       },
     });
+
+   
 
     return userCards;
   }

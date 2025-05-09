@@ -8,7 +8,6 @@ import {
   Post,
   Put,
   Query,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
@@ -16,7 +15,6 @@ import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { CreateExpenseDto } from './dtos/create-expense.dto';
-import { Response } from 'express';
 import { UpdateExpenseDto } from './dtos/update-expense.dto';
 
 @Controller('expenses')
@@ -25,18 +23,14 @@ export class ExpensesController {
 
   @Post('/')
   @UseGuards(JwtAuthGuard)
-  async create(
-    @getUser() user: User,
-    @Body() body: CreateExpenseDto,
-    @Res() res: Response,
-  ) {
+  async create(@getUser() user: User, @Body() body: CreateExpenseDto) {
     const expense = await this.expensesService.create(body, user);
 
-    return res.status(HttpStatus.CREATED).json({
+    return {
       data: expense,
       statusCode: HttpStatus.CREATED,
       message: 'expense created successfully',
-    });
+    };
   }
 
   @Get('/')
@@ -45,7 +39,6 @@ export class ExpensesController {
     @getUser() user: User,
     @Query('page') page: string,
     @Query('limit') limit: string,
-    @Res() res: Response,
   ) {
     const expense = await this.expensesService.findAll(
       parseInt(page),
@@ -53,27 +46,23 @@ export class ExpensesController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: expense,
       statusCode: HttpStatus.OK,
       message: 'expense send successfully',
-    });
+    };
   }
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
-  async findOne(
-    @getUser() user: User,
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async findOne(@getUser() user: User, @Param('id') id: string) {
     const expense = await this.expensesService.findOne(parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: expense,
       statusCode: HttpStatus.OK,
       message: 'expense send successfully',
-    });
+    };
   }
 
   @Put('/:id')
@@ -82,30 +71,25 @@ export class ExpensesController {
     @getUser() user: User,
     @Param('id') id: string,
     @Body() body: UpdateExpenseDto,
-    @Res() res: Response,
   ) {
     const expense = await this.expensesService.update(body, parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: expense,
       statusCode: HttpStatus.OK,
       message: 'expense updated successfully',
-    });
+    };
   }
 
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
-  async remove(
-    @getUser() user: User,
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async remove(@getUser() user: User, @Param('id') id: string) {
     await this.expensesService.remove(parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: '',
       statusCode: HttpStatus.OK,
       message: 'expense deleted successfully',
-    });
+    };
   }
 }

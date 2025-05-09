@@ -6,6 +6,7 @@ import {
   IsDateString,
 } from 'class-validator';
 import { ReceivableDebtTypeEnum } from '../enums/receivable-debt-type-enum';
+import { Transform } from 'class-transformer';
 
 export class UpdateReceivableDebtDto {
   @IsEnum(ReceivableDebtTypeEnum, {
@@ -24,6 +25,7 @@ export class UpdateReceivableDebtDto {
   person: string;
 
   @IsDateString()
+  @Transform(({ value }) => new Date(value).toISOString())
   @IsOptional()
   date: string;
 

@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware, NotFoundException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
@@ -35,7 +35,9 @@ export class CurrentUserMiddleware implements NestMiddleware {
           const user = await this.usersService.findById(userId);
           if (user) {
             req.currentUser = user;
-          }
+          }else {
+            console.warn('User not found:', userId);
+            return res.status(404).json({ message: 'User not found' });          }
         }
       } catch (error) {
         console.error('JWT verification failed:', error);

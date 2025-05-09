@@ -21,22 +21,22 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/send')
-  async send(@Body() body: SendOTPDto, @Res() res: Response) {
+  async send(@Body() body: SendOTPDto) {
     const sendOtp = await this.authService.sendOtp(body.phone);
 
     if (!sendOtp.otp) {
-      return res.status(HttpStatus.OK).json({
+      return {
         data: sendOtp.otp,
         statusCode: HttpStatus.TOO_MANY_REQUESTS,
         message: sendOtp.message,
-      });
+      };
     }
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: sendOtp.otp,
       statusCode: HttpStatus.OK,
       message: sendOtp.message,
-    });
+    };
   }
 
   @Post('/verify')
@@ -80,14 +80,14 @@ export class AuthController {
 
   @Get('/me')
   @UseGuards(JwtAuthGuard)
-  async getMe(@getUser() user: User, @Res() res: Response) {
+  async getMe(@getUser() user: User) {
     const userInfos = await this.authService.getMe(user.id);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: userInfos,
       statusCode: HttpStatus.OK,
-      message: 'user infos send successfully',
-    });
+      message: 'User infos sent successfully',
+    };
   }
 
   @Post('/refresh')

@@ -9,7 +9,6 @@ import {
   Post,
   Put,
   Query,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ReceivablesDebtsService } from './receivables-debts.service';
@@ -17,7 +16,6 @@ import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { CreateReceivableDebtDto } from './dtos/create-receivable-debt.dto';
-import { Response } from 'express';
 import { ReceivableDebtTypeEnum } from './enums/receivable-debt-type-enum';
 import { UpdateReceivableDebtStatusDto } from './dtos/update-receivable-debt-status';
 import { UpdateReceivableDebtDto } from './dtos/update-receivable-debt.dto';
@@ -31,21 +29,17 @@ export class ReceivablesDebtsController {
 
   @Post('/')
   @UseGuards(JwtAuthGuard)
-  async create(
-    @getUser() user: User,
-    @Body() body: CreateReceivableDebtDto,
-    @Res() res: Response,
-  ) {
+  async create(@getUser() user: User, @Body() body: CreateReceivableDebtDto) {
     const receivableOrDebt = await this.receivablesDebtsService.create(
       body,
       user,
     );
 
-    return res.status(HttpStatus.CREATED).json({
+    return {
       data: receivableOrDebt,
       statusCode: HttpStatus.CREATED,
       message: 'receivable/debt created successfully',
-    });
+    };
   }
 
   @Get('/type')
@@ -55,7 +49,6 @@ export class ReceivablesDebtsController {
     @Query('type') type: ReceivableDebtTypeEnum,
     @Query('page') page: string,
     @Query('limit') limit: string,
-    @Res() res: Response,
   ) {
     const receivablesOrDebts = await this.receivablesDebtsService.getByType(
       parseInt(page),
@@ -64,11 +57,11 @@ export class ReceivablesDebtsController {
       type,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: receivablesOrDebts,
       statusCode: HttpStatus.OK,
       message: 'receivable/debt sent successfully',
-    });
+    };
   }
   @Get('/status')
   @UseGuards(JwtAuthGuard)
@@ -77,7 +70,6 @@ export class ReceivablesDebtsController {
     @Query('status') status: ReceivableDebtStatusEnum,
     @Query('page') page: string,
     @Query('limit') limit: string,
-    @Res() res: Response,
   ) {
     const receivablesOrDebts = await this.receivablesDebtsService.getByStatus(
       parseInt(page),
@@ -86,30 +78,26 @@ export class ReceivablesDebtsController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: receivablesOrDebts,
       statusCode: HttpStatus.OK,
       message: 'receivable/debt sent successfully',
-    });
+    };
   }
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
-  async findById(
-    @getUser() user: User,
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async findById(@getUser() user: User, @Param('id') id: string) {
     const receivablesOrDebts = await this.receivablesDebtsService.getById(
       parseInt(id),
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: receivablesOrDebts,
       statusCode: HttpStatus.OK,
       message: 'receivable/debt sent successfully',
-    });
+    };
   }
 
   @Patch('/:id/status')
@@ -118,7 +106,6 @@ export class ReceivablesDebtsController {
     @getUser() user: User,
     @Param('id') id: string,
     @Body() body: UpdateReceivableDebtStatusDto,
-    @Res() res: Response,
   ) {
     const receivableOrDebt = await this.receivablesDebtsService.updateStatus(
       body,
@@ -126,11 +113,11 @@ export class ReceivablesDebtsController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: receivableOrDebt,
       statusCode: HttpStatus.OK,
       message: 'receivable/debt status updated successfully',
-    });
+    };
   }
 
   @Put('/:id')
@@ -139,7 +126,6 @@ export class ReceivablesDebtsController {
     @getUser() user: User,
     @Param('id') id: string,
     @Body() body: UpdateReceivableDebtDto,
-    @Res() res: Response,
   ) {
     const receivableOrDebt = await this.receivablesDebtsService.update(
       body,
@@ -147,26 +133,22 @@ export class ReceivablesDebtsController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: receivableOrDebt,
       statusCode: HttpStatus.OK,
       message: 'receivable/debt  updated successfully',
-    });
+    };
   }
 
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
-  async remove(
-    @getUser() user: User,
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async remove(@getUser() user: User, @Param('id') id: string) {
     await this.receivablesDebtsService.remove(parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: '',
       statusCode: HttpStatus.OK,
       message: 'receivable/debt  removed successfully',
-    });
+    };
   }
 }

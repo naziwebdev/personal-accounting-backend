@@ -9,6 +9,7 @@ import {
   Length,
 } from 'class-validator';
 import { LoanPeriodEnum } from '../enums/loan-period-enum';
+import { Transform } from 'class-transformer';
 
 export class CreateLoanDto {
   @IsString()
@@ -35,6 +36,7 @@ export class CreateLoanDto {
   countInstallment: number;
 
   @IsDateString()
+  @Transform(({ value }) => new Date(value).toISOString())
   @IsNotEmpty({ message: 'count of installment is required' })
   firstDateInstallment: string;
 

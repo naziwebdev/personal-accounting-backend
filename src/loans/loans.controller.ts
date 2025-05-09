@@ -9,7 +9,6 @@ import {
   Post,
   Put,
   Query,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { LoansService } from './loans.service';
@@ -17,7 +16,6 @@ import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { CreateLoanDto } from './dtos/create-loan.dto';
-import { Response } from 'express';
 import { LoanStatusEnum } from './enums/loan-status-enum';
 import { UpdateLoanDto } from './dtos/update-loan.dto';
 import { UpdateStatusInstallment } from './dtos/update-installment-status.dto';
@@ -28,18 +26,14 @@ export class LoansController {
 
   @Post('/')
   @UseGuards(JwtAuthGuard)
-  async create(
-    @getUser() user: User,
-    @Body() body: CreateLoanDto,
-    @Res() res: Response,
-  ) {
+  async create(@getUser() user: User, @Body() body: CreateLoanDto) {
     const loan = await this.loansService.create(body, user);
 
-    return res.status(HttpStatus.CREATED).json({
+    return {
       data: loan,
       statusCode: HttpStatus.CREATED,
       message: 'loan created successfully',
-    });
+    };
   }
 
   @Get('/')
@@ -48,7 +42,6 @@ export class LoansController {
     @getUser() user: User,
     @Query('page') page: string,
     @Query('limit') limit: string,
-    @Res() res: Response,
   ) {
     const loans = await this.loansService.getAll(
       parseInt(page),
@@ -56,11 +49,11 @@ export class LoansController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: loans,
       statusCode: HttpStatus.OK,
       message: 'loans sent successfully',
-    });
+    };
   }
 
   @Get('/status')
@@ -70,7 +63,6 @@ export class LoansController {
     @Query('page') page: string,
     @Query('limit') limit: string,
     @Query('status') status: LoanStatusEnum,
-    @Res() res: Response,
   ) {
     const loans = await this.loansService.getByStatus(
       parseInt(page),
@@ -79,27 +71,23 @@ export class LoansController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: loans,
       statusCode: HttpStatus.OK,
       message: 'loans sent successfully',
-    });
+    };
   }
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
-  async findOne(
-    @getUser() user: User,
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async findOne(@getUser() user: User, @Param('id') id: string) {
     const loan = await this.loansService.getOne(parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: loan,
       statusCode: HttpStatus.OK,
       message: 'loan sent successfully',
-    });
+    };
   }
 
   @Put('/:id')
@@ -108,7 +96,6 @@ export class LoansController {
     @getUser() user: User,
     @Param('id') id: string,
     @Body() body: UpdateLoanDto,
-    @Res() res: Response,
   ) {
     const loanUpdated = await this.loansService.update(
       body,
@@ -116,11 +103,11 @@ export class LoansController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: loanUpdated,
       statusCode: HttpStatus.OK,
       message: 'loan updated successfully',
-    });
+    };
   }
 
   @Patch('/installment/:id')
@@ -129,7 +116,6 @@ export class LoansController {
     @getUser() user: User,
     @Param('id') id: string,
     @Body() body: UpdateStatusInstallment,
-    @Res() res: Response,
   ) {
     const installmentUpdated = await this.loansService.updateInstallmentStatus(
       parseInt(id),
@@ -137,26 +123,22 @@ export class LoansController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: installmentUpdated,
       statusCode: HttpStatus.OK,
       message: 'installment status  updated successfully',
-    });
+    };
   }
 
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
-  async remove(
-    @getUser() user: User,
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async remove(@getUser() user: User, @Param('id') id: string) {
     await this.loansService.remove(parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: '',
       statusCode: HttpStatus.OK,
       message: 'loan deleted successfully',
-    });
+    };
   }
 }

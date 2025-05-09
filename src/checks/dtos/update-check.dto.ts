@@ -6,6 +6,7 @@ import {
   IsDateString,
 } from 'class-validator';
 import { CheckTypeEnum } from '../enums/check-type-enum';
+import { Transform } from 'class-transformer';
 
 export class UpdateCheckDto {
   @IsEnum(CheckTypeEnum, { message: 'type must be pay or receive' })
@@ -26,10 +27,12 @@ export class UpdateCheckDto {
   payable: string;
 
   @IsDateString()
+  @Transform(({ value }) => new Date(value).toISOString())
   @IsOptional()
   issued: string;
 
   @IsDateString()
+  @Transform(({ value }) => new Date(value).toISOString())
   @IsOptional()
   due_date: string;
 

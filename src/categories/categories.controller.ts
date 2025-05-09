@@ -8,14 +8,11 @@ import {
   Post,
   Put,
   Query,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
-import { RoleGuard } from 'src/guards/role.gurad';
 import { CreateCategoryDto } from './dtos/create-category.dto';
-import { Response } from 'express';
 import { UpdateCategoryDto } from './dtos/update-category-dto';
 import { CategoryTypeEnum } from './enums/category-type-enum';
 import { getUser } from 'src/decorators/get-user.decorator';
@@ -30,15 +27,14 @@ export class CategoriesController {
   async create(
     @getUser() user: User,
     @Body() body: CreateCategoryDto,
-    @Res() res: Response,
   ) {
     const newCategory = await this.categoriesService.create(body, user);
 
-    return res.status(HttpStatus.CREATED).json({
+    return {
       data: newCategory,
       statusCode: HttpStatus.CREATED,
       message: 'category created successfully',
-    });
+    }
   }
 
   @Get()
@@ -46,15 +42,14 @@ export class CategoriesController {
   async getCatecoriesByType(
     @getUser() user: User,
     @Query('type') type: CategoryTypeEnum,
-    @Res() res: Response,
   ) {
     const categories = await this.categoriesService.findAllByType(type, user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: categories,
       statusCode: HttpStatus.OK,
       message: 'categoris get successfully',
-    });
+    }
   }
 
   @Put('/:id')
@@ -63,7 +58,6 @@ export class CategoriesController {
     @getUser() user: User,
     @Body() body: UpdateCategoryDto,
     @Param('id') id: string,
-    @Res() res: Response,
   ) {
     const category = await this.categoriesService.update(
       body,
@@ -71,11 +65,11 @@ export class CategoriesController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: category,
       statusCode: HttpStatus.OK,
       message: 'category updated successfully',
-    });
+    }
   }
 
   @Delete('/:id')
@@ -83,14 +77,13 @@ export class CategoriesController {
   async remove(
     @getUser() user: User,
     @Param('id') id: string,
-    @Res() res: Response,
   ) {
     await this.categoriesService.remove(parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: null,
       statusCode: HttpStatus.OK,
       message: 'category removed successfully',
-    });
+    }
   }
 }

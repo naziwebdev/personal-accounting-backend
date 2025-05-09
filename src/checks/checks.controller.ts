@@ -9,14 +9,12 @@ import {
   Post,
   Put,
   Query,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ChecksService } from './checks.service';
 import { CreateCheckDto } from './dtos/create-check.dto';
 import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
-import { Response } from 'express';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { CheckTypeEnum } from './enums/check-type-enum';
 import { CheckStatusEnum } from './enums/check-status-enum';
@@ -29,18 +27,14 @@ export class ChecksController {
 
   @Post('/')
   @UseGuards(JwtAuthGuard)
-  async create(
-    @getUser() user: User,
-    @Body() body: CreateCheckDto,
-    @Res() res: Response,
-  ) {
+  async create(@getUser() user: User, @Body() body: CreateCheckDto) {
     const check = await this.checksService.create(body, user);
 
-    return res.status(HttpStatus.CREATED).json({
+    return {
       data: check,
       statusCode: HttpStatus.CREATED,
       message: 'check created successfully',
-    });
+    };
   }
 
   @Get('/')
@@ -49,7 +43,6 @@ export class ChecksController {
     @getUser() user: User,
     @Query('page') page: string,
     @Query('limit') limit: string,
-    @Res() res: Response,
   ) {
     const checks = await this.checksService.getAll(
       parseInt(page),
@@ -57,11 +50,11 @@ export class ChecksController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: checks,
       statusCode: HttpStatus.OK,
       message: 'checks sent successfully',
-    });
+    };
   }
 
   @Get('/type')
@@ -71,7 +64,6 @@ export class ChecksController {
     @Query('page') page: string,
     @Query('limit') limit: string,
     @Query('type') type: CheckTypeEnum,
-    @Res() res: Response,
   ) {
     const checks = await this.checksService.getByType(
       parseInt(page),
@@ -80,11 +72,11 @@ export class ChecksController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: checks,
       statusCode: HttpStatus.OK,
       message: 'checks sent successfully',
-    });
+    };
   }
 
   @Get('/status')
@@ -94,7 +86,6 @@ export class ChecksController {
     @Query('page') page: string,
     @Query('limit') limit: string,
     @Query('status') status: CheckStatusEnum,
-    @Res() res: Response,
   ) {
     const checks = await this.checksService.getByStatus(
       parseInt(page),
@@ -103,27 +94,23 @@ export class ChecksController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: checks,
       statusCode: HttpStatus.OK,
       message: 'checks sent successfully',
-    });
+    };
   }
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
-  async findById(
-    @getUser() user: User,
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async findById(@getUser() user: User, @Param('id') id: string) {
     const check = await this.checksService.getById(parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: check,
       statusCode: HttpStatus.OK,
       message: 'checks sent successfully',
-    });
+    };
   }
 
   @Put('/:id')
@@ -132,15 +119,14 @@ export class ChecksController {
     @getUser() user: User,
     @Param('id') id: string,
     @Body() body: UpdateCheckDto,
-    @Res() res: Response,
   ) {
     const check = await this.checksService.update(body, parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: check,
       statusCode: HttpStatus.OK,
       message: 'checks updated successfully',
-    });
+    };
   }
 
   @Patch('/:id')
@@ -149,7 +135,6 @@ export class ChecksController {
     @getUser() user: User,
     @Param('id') id: string,
     @Body() body: UpdateStatusCheckDto,
-    @Res() res: Response,
   ) {
     const check = await this.checksService.updateStatus(
       body,
@@ -157,26 +142,22 @@ export class ChecksController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: check,
       statusCode: HttpStatus.OK,
       message: 'checks status updated successfully',
-    });
+    };
   }
 
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
-  async remove(
-    @getUser() user: User,
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async remove(@getUser() user: User, @Param('id') id: string) {
     await this.checksService.remove(parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: '',
       statusCode: HttpStatus.OK,
       message: 'checks deleted successfully',
-    });
+    };
   }
 }

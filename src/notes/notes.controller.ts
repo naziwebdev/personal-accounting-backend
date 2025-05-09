@@ -8,7 +8,6 @@ import {
   Post,
   Put,
   Query,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
@@ -16,7 +15,6 @@ import { JwtAuthGuard } from 'src/guards/auth.guard';
 import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { CreateNoteDto } from './dtos/create-note.dto';
-import { Response } from 'express';
 import { UpdateNoteDto } from './dtos/update-note.dto';
 
 @Controller('notes')
@@ -25,18 +23,14 @@ export class NotesController {
 
   @Post('/')
   @UseGuards(JwtAuthGuard)
-  async create(
-    @getUser() user: User,
-    @Body() body: CreateNoteDto,
-    @Res() res: Response,
-  ) {
+  async create(@getUser() user: User, @Body() body: CreateNoteDto) {
     const note = await this.notesService.create(body, user);
 
-    return res.status(HttpStatus.CREATED).json({
+    return {
       data: note,
       statusCode: HttpStatus.CREATED,
       message: 'note created successfully',
-    });
+    };
   }
 
   @Get('/')
@@ -45,7 +39,6 @@ export class NotesController {
     @getUser() user: User,
     @Query('page') page: string,
     @Query('limit') limit: string,
-    @Res() res: Response,
   ) {
     const notes = await this.notesService.findAll(
       parseInt(page),
@@ -53,27 +46,23 @@ export class NotesController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: notes,
       statusCode: HttpStatus.OK,
       message: 'notes sent successfully',
-    });
+    };
   }
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
-  async findOne(
-    @getUser() user: User,
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async findOne(@getUser() user: User, @Param('id') id: string) {
     const note = await this.notesService.findOne(parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: note,
       statusCode: HttpStatus.OK,
       message: 'note sent successfully',
-    });
+    };
   }
 
   @Put('/:id')
@@ -82,30 +71,25 @@ export class NotesController {
     @getUser() user: User,
     @Param('id') id: string,
     @Body() body: UpdateNoteDto,
-    @Res() res: Response,
   ) {
     const note = await this.notesService.update(body, parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: note,
       statusCode: HttpStatus.OK,
       message: 'note updated successfully',
-    });
+    };
   }
 
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
-  async remove(
-    @getUser() user: User,
-    @Param('id') id: string,
-    @Res() res: Response,
-  ) {
+  async remove(@getUser() user: User, @Param('id') id: string) {
     await this.notesService.remove(parseInt(id), user);
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: '',
       statusCode: HttpStatus.OK,
       message: 'note deleted successfully',
-    });
+    };
   }
 }
