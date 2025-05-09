@@ -1,15 +1,7 @@
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  Query,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Query, UseGuards } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
-import { Response } from 'express';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
 
 @Controller('reports')
@@ -22,7 +14,6 @@ export class ReportsController {
     @getUser() user: User,
     @Query('year') year: string,
     @Query('month') month: string,
-    @Res() res: Response,
   ) {
     const incomes = await this.reportsService.getWeeklyIncomeReport(
       parseInt(year),
@@ -30,11 +21,11 @@ export class ReportsController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: incomes,
       statusCodes: HttpStatus.OK,
       message: 'weekly income reports sent successfully',
-    });
+    };
   }
 
   @Get('/income-monthly')
@@ -42,18 +33,17 @@ export class ReportsController {
   async getMonthlyIncomeReport(
     @getUser() user: User,
     @Query('year') year: string,
-    @Res() res: Response,
   ) {
     const incomes = await this.reportsService.getMonthlyIncomeReport(
       parseInt(year),
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: incomes,
       statusCodes: HttpStatus.OK,
       message: 'monthly income reports sent successfully',
-    });
+    };
   }
 
   @Get('/expense-weekly')
@@ -62,7 +52,6 @@ export class ReportsController {
     @getUser() user: User,
     @Query('year') year: string,
     @Query('month') month: string,
-    @Res() res: Response,
   ) {
     const expenses = await this.reportsService.getWeeklyExpenseReport(
       parseInt(year),
@@ -70,11 +59,11 @@ export class ReportsController {
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: expenses,
       statusCodes: HttpStatus.OK,
       message: 'weekly expense reports sent successfully',
-    });
+    };
   }
 
   @Get('/expense-monthly')
@@ -82,18 +71,17 @@ export class ReportsController {
   async getMonthlyExpenseReport(
     @getUser() user: User,
     @Query('year') year: string,
-    @Res() res: Response,
   ) {
     const expenses = await this.reportsService.getMonthlyExpenseReport(
       parseInt(year),
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: expenses,
       statusCodes: HttpStatus.OK,
       message: 'monthly expense reports sent successfully',
-    });
+    };
   }
 
   @Get('/saving')
@@ -101,17 +89,16 @@ export class ReportsController {
   async getMonthlySavingReport(
     @getUser() user: User,
     @Query('year') year: string,
-    @Res() res: Response,
   ) {
     const savings = await this.reportsService.getMonthlySaveMoney(
       parseInt(year),
       user,
     );
 
-    return res.status(HttpStatus.OK).json({
+    return {
       data: savings,
       statusCodes: HttpStatus.OK,
       message: 'monthly savings reports sent successfully',
-    });
+    };
   }
 }

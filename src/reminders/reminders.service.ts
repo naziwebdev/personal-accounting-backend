@@ -50,7 +50,7 @@ export class RemindersService {
       const oneDayBefore = new Date(dueDate);
       oneDayBefore.setDate(oneDayBefore.getDate() - 1);
 
-      dueDates.push(sevenDaysBefore, oneDayBefore);
+      dueDates.push(sevenDaysBefore.toISOString(), oneDayBefore.toISOString());
     }
 
     const reminder = await this.remindersRepository.create({
