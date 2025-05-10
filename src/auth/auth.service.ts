@@ -23,6 +23,7 @@ import {
   getRefreshTokenRedis,
   setRefreshTokenInRedis,
 } from './helpers/refresh-token-redis';
+import { convertPersianToEnglishDigits } from './helpers/convert-digits';
 
 @Injectable()
 export class AuthService {
@@ -62,9 +63,11 @@ export class AuthService {
   }
 
   async sendOtp(phone: string) {
+    const normalizedPhone = convertPersianToEnglishDigits(phone);
+
     const { expired, remainingTime } = await getOtpDetails(
       this.redisClient,
-      phone,
+      normalizedPhone,
     );
     if (!expired) {
       return {
@@ -73,7 +76,7 @@ export class AuthService {
       };
     }
 
-    const otp = await generateOtp(this.redisClient, phone);
+    const otp = await generateOtp(this.redisClient, normalizedPhone);
 
     // await this.sendSms(phone,otp)
 
@@ -84,7 +87,10 @@ export class AuthService {
   }
 
   async verify(phone: string, otp: string) {
-    const userOtp = await this.redisClient.get(getOtpRedisPattern(phone));
+    const normalizedPhone = convertPersianToEnglishDigits(phone);
+    const userOtp = await this.redisClient.get(
+      getOtpRedisPattern(normalizedPhone),
+    );
     if (!userOtp) {
       throw new BadRequestException('not found otp');
     }
@@ -94,7 +100,7 @@ export class AuthService {
       throw new BadRequestException('otp is invalid');
     }
 
-    const existUser = await this.usersService.findByPhone(phone);
+    const existUser = await this.usersService.findByPhone(normalizedPhone);
     if (existUser) {
       const userID = existUser.id;
       const accessToken = this.jwtService.sign(
@@ -120,7 +126,7 @@ export class AuthService {
       return { isRegister: true, existUser, accessToken, refreshToken };
     }
 
-    const newUser = await this.usersService.create(phone);
+    const newUser = await this.usersService.create(normalizedPhone);
     const userID = newUser.id;
     const accessToken = this.jwtService.sign(
       {
