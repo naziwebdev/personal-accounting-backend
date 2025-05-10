@@ -5,7 +5,11 @@ import { Expense } from 'src/expenses/entities/expense.entity';
 import { Income } from 'src/incomes/entities/income.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
-import { converShamsiToGregorian } from './helpers/conver-shamsi-to-gregorian';
+import {
+  allMonthExpense,
+  allMonthsIncome,
+  converShamsiToGregorian,
+} from './helpers/conver-shamsi-to-gregorian';
 
 @Injectable()
 export class ReportsService {
@@ -57,48 +61,42 @@ export class ReportsService {
     return allWeeks;
   }
 
-  async getMonthlyIncomeReport(year: number, user: User) {
-    const monthlyReports = await this.incomesRepository
-      .createQueryBuilder('income')
-      .select([
-        `TO_CHAR(income.date, 'YYYY-MM') AS month`,
-        `COALESCE(SUM(income.price), 0) AS totalIncome`,
-      ])
-      .where(`EXTRACT(YEAR FROM income.date) = :year`, { year })
-      .andWhere('income.userId = :userId', { userId: user.id })
-      .groupBy(`TO_CHAR(income.date, 'YYYY-MM')`)
-      .orderBy(`month`, 'ASC')
-      .getRawMany();
+  async getMonthlyIncomeReport(shamsiYear: number, user: User) {
+    const allMonths = allMonthsIncome;
+    const monthlyReports = await Promise.all(
+      allMonths.map(async (_, index) => {
+        const shamsiMonth = index + 1;
+        const { startDate, endDate } = converShamsiToGregorian(
+          shamsiMonth,
+          shamsiYear,
+        );
 
-    const allMonths = [
-      { month: '01', totalIncome: 0 },
-      { month: '02', totalIncome: 0 },
-      { month: '03', totalIncome: 0 },
-      { month: '04', totalIncome: 0 },
-      { month: '05', totalIncome: 0 },
-      { month: '06', totalIncome: 0 },
-      { month: '07', totalIncome: 0 },
-      { month: '08', totalIncome: 0 },
-      { month: '09', totalIncome: 0 },
-      { month: '10', totalIncome: 0 },
-      { month: '11', totalIncome: 0 },
-      { month: '12', totalIncome: 0 },
-    ];
+        const monthlyReport = await this.incomesRepository
+          .createQueryBuilder('income')
+          .select([`COALESCE(SUM(income.price), 0) AS totalIncome`])
+          .where(`income.date >= :startDate AND income.date <= :endDate`, {
+            startDate,
+            endDate,
+          })
+          .andWhere('income.userId = :userId', { userId: user.id })
+          .getRawOne();
 
-    monthlyReports.forEach((data: any) => {
-      const index = allMonths.findIndex(
-        (m) => m.month === data.month.split('-')[1],
-      );
+        return {
+          month: shamsiMonth,
+          totalIncome: Number(monthlyReport?.totalincome || 0),
+        };
+      }),
+    );
 
-      if (index !== -1) {
-        allMonths[index].totalIncome = data.totalincome;
-      }
+    monthlyReports.forEach((report) => {
+      allMonths[report.month - 1].totalIncome = report.totalIncome;
     });
 
     const totalIncomeInYear = allMonths.reduce(
-      (total, value) => total + Number(value.totalIncome),
+      (total, value) => total + value.totalIncome,
       0,
     );
+
     return {
       allMonths,
       totalIncomeInYear,
@@ -147,79 +145,49 @@ export class ReportsService {
     return allWeeks;
   }
 
-  async getMonthlyExpenseReport(year: number, user: User) {
-    const monthlyReports = await this.expensesRepository
-      .createQueryBuilder('expense')
-      .select([
-        `TO_CHAR(expense.date, 'YYYY-MM') AS month`,
-        `COALESCE(SUM(expense.price), 0) AS totalExpense`,
-      ])
-      .where(`EXTRACT(YEAR FROM expense.date) = :year`, { year })
-      .andWhere('expense.userId = :userId', { userId: user.id })
-      .groupBy(`TO_CHAR(expense.date, 'YYYY-MM')`)
-      .orderBy(`month`, 'ASC')
-      .getRawMany();
+  async getMonthlyExpenseReport(shamsiYear: number, user: User) {
+    const allMonths = allMonthExpense;
+    const monthlyReports = await Promise.all(
+      allMonths.map(async (_, index) => {
+        const shamsiMonth = index + 1;
+        const { startDate, endDate } = converShamsiToGregorian(
+          shamsiMonth,
+          shamsiYear,
+        );
 
-    const allMonths = [
-      { month: '01', totalExpense: 0 },
-      { month: '02', totalExpense: 0 },
-      { month: '03', totalExpense: 0 },
-      { month: '04', totalExpense: 0 },
-      { month: '05', totalExpense: 0 },
-      { month: '06', totalExpense: 0 },
-      { month: '07', totalExpense: 0 },
-      { month: '08', totalExpense: 0 },
-      { month: '09', totalExpense: 0 },
-      { month: '10', totalExpense: 0 },
-      { month: '11', totalExpense: 0 },
-      { month: '12', totalExpense: 0 },
-    ];
+        const monthlyReport = await this.expensesRepository
+          .createQueryBuilder('expense')
+          .select([`COALESCE(SUM(expense.price), 0) AS totalExpense`])
+          .where(`expense.date >= :startDate AND expense.date <= :endDate`, {
+            startDate,
+            endDate,
+          })
+          .andWhere('expense.userId = :userId', { userId: user.id })
+          .getRawOne();
 
-    monthlyReports.forEach((data: any) => {
-      const index = allMonths.findIndex(
-        (m) => m.month === data.month.split('-')[1],
-      );
+        return {
+          month: shamsiMonth,
+          totalExpense: Number(monthlyReport?.totalexpense || 0),
+        };
+      }),
+    );
 
-      if (index !== -1) {
-        allMonths[index].totalExpense = data.totalexpense;
-      }
+    monthlyReports.forEach((report) => {
+      allMonths[report.month - 1].totalExpense = report.totalExpense;
     });
 
     const totalExpenseInYear = allMonths.reduce(
-      (total, value) => total + Number(value.totalExpense),
+      (total, value) => total + value.totalExpense,
       0,
     );
+
     return {
       allMonths,
       totalExpenseInYear,
     };
   }
 
-  async getMonthlySaveMoney(year: number, user: User) {
-    const incomeReport = await this.incomesRepository
-      .createQueryBuilder('income')
-      .select([
-        `TO_CHAR(income.date, 'MM') AS month`,
-        `COALESCE(SUM(income.price), 0) AS totalIncome`,
-      ])
-      .where(`EXTRACT(YEAR FROM income.date) = :year`, { year })
-      .andWhere('income.userId = :userId', { userId: user.id })
-      .groupBy(`TO_CHAR(income.date, 'MM')`)
-      .orderBy(`month`, 'ASC')
-      .getRawMany();
-
-    const expenseReport = await this.expensesRepository
-      .createQueryBuilder('expense')
-      .select([
-        `TO_CHAR(expense.date, 'MM') AS month`,
-        `COALESCE(SUM(expense.price), 0) AS totalExpense`,
-      ])
-      .where(`EXTRACT(YEAR FROM expense.date) = :year`, { year })
-      .andWhere('expense.userId = :userId', { userId: user.id })
-      .groupBy(`TO_CHAR(expense.date, 'MM')`)
-      .orderBy(`month`, 'ASC')
-      .getRawMany();
-
+  async getMonthlySaveMoney(shamsiYear: number, user: User) {
     const allMonths = Array.from({ length: 12 }, (_, i) => ({
       month: String(i + 1).padStart(2, '0'),
       totalIncome: 0,
@@ -227,22 +195,47 @@ export class ReportsService {
       savings: 0,
     }));
 
-    incomeReport.forEach((data) => {
-      const index = allMonths.findIndex((m) => m.month === data.month);
-      if (index !== -1) {
-        allMonths[index].totalIncome = Number(data.totalincome) || 0;
-      }
-    });
+    const monthlyReports = await Promise.all(
+      allMonths.map(async (_, index) => {
+        const shamsiMonth = index + 1;
+        const { startDate, endDate } = converShamsiToGregorian(
+          shamsiMonth,
+          shamsiYear,
+        );
 
-    expenseReport.forEach((data) => {
-      const index = allMonths.findIndex((m) => m.month === data.month);
-      if (index !== -1) {
-        allMonths[index].totalExpense = Number(data.totalexpense) || 0;
-      }
-    });
+        const incomeReport = await this.incomesRepository
+          .createQueryBuilder('income')
+          .select([`COALESCE(SUM(income.price), 0) AS totalIncome`])
+          .where(`income.date >= :startDate AND income.date <= :endDate`, {
+            startDate,
+            endDate,
+          })
+          .andWhere('income.userId = :userId', { userId: user.id })
+          .getRawOne();
 
-    allMonths.forEach((month) => {
-      month.savings = month.totalIncome - month.totalExpense;
+        const expenseReport = await this.expensesRepository
+          .createQueryBuilder('expense')
+          .select([`COALESCE(SUM(expense.price), 0) AS totalExpense`])
+          .where(`expense.date >= :startDate AND expense.date <= :endDate`, {
+            startDate,
+            endDate,
+          })
+          .andWhere('expense.userId = :userId', { userId: user.id })
+          .getRawOne();
+
+        return {
+          month: shamsiMonth,
+          totalIncome: Number(incomeReport?.totalincome || 0),
+          totalExpense: Number(expenseReport?.totalexpense || 0),
+        };
+      }),
+    );
+
+    monthlyReports.forEach((report) => {
+      allMonths[report.month - 1].totalIncome = report.totalIncome;
+      allMonths[report.month - 1].totalExpense = report.totalExpense;
+      allMonths[report.month - 1].savings =
+        report.totalIncome - report.totalExpense;
     });
 
     return allMonths;
