@@ -5,6 +5,7 @@ import { Expense } from 'src/expenses/entities/expense.entity';
 import { Income } from 'src/incomes/entities/income.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
+import { converShamsiToGregorian } from './helpers/conver-shamsi-to-gregorian';
 
 @Injectable()
 export class ReportsService {
@@ -16,22 +17,25 @@ export class ReportsService {
   ) {}
 
   async getWeeklyIncomeReport(year: number, month: number, user: User) {
+    const { startDate, endDate } = converShamsiToGregorian(month, year);
+
     const weeklyReport = await this.incomesRepository
       .createQueryBuilder('income')
       .select([
         `CASE 
-        WHEN EXTRACT(DAY FROM income.date) BETWEEN 1 AND 7 THEN 'Week 1'
-        WHEN EXTRACT(DAY FROM income.date) BETWEEN 8 AND 14 THEN 'Week 2'
-        WHEN EXTRACT(DAY FROM income.date) BETWEEN 15 AND 21 THEN 'Week 3'
-        WHEN EXTRACT(DAY FROM income.date) BETWEEN 22 AND 28 THEN 'Week 4'
+        WHEN TO_CHAR(income.date AT TIME ZONE 'UTC', 'YYYY-MM-DD')::date BETWEEN :startDate AND :startDate + INTERVAL '6 days' THEN 'Week 1'
+        WHEN TO_CHAR(income.date AT TIME ZONE 'UTC', 'YYYY-MM-DD')::date BETWEEN :startDate + INTERVAL '7 days' AND :startDate + INTERVAL '13 days' THEN 'Week 2'
+        WHEN TO_CHAR(income.date AT TIME ZONE 'UTC', 'YYYY-MM-DD')::date BETWEEN :startDate + INTERVAL '14 days' AND :startDate + INTERVAL '20 days' THEN 'Week 3'
+        WHEN TO_CHAR(income.date AT TIME ZONE 'UTC', 'YYYY-MM-DD')::date BETWEEN :startDate + INTERVAL '21 days' AND :startDate + INTERVAL '27 days' THEN 'Week 4'
         ELSE 'Week 5'
       END AS week`,
         `COALESCE(SUM(income.price), 0) AS totalIncome`,
       ])
-      .where(`EXTRACT(YEAR FROM income.date) = :year`, { year })
-      .andWhere(`EXTRACT(MONTH FROM income.date) = :month`, { month })
+      .where(`income.date BETWEEN :startDate AND :endDate`, {
+        startDate,
+        endDate,
+      })
       .andWhere('income.userId = :userId', { userId: user.id })
-
       .groupBy(`week`)
       .orderBy(`week`, 'ASC')
       .getRawMany();
@@ -102,22 +106,25 @@ export class ReportsService {
   }
 
   async getWeeklyExpenseReport(year: number, month: number, user: User) {
+    const { startDate, endDate } = converShamsiToGregorian(month, year);
+
     const weeklyReport = await this.expensesRepository
       .createQueryBuilder('expense')
       .select([
         `CASE 
-        WHEN EXTRACT(DAY FROM expense.date) BETWEEN 1 AND 7 THEN 'Week 1'
-        WHEN EXTRACT(DAY FROM expense.date) BETWEEN 8 AND 14 THEN 'Week 2'
-        WHEN EXTRACT(DAY FROM expense.date) BETWEEN 15 AND 21 THEN 'Week 3'
-        WHEN EXTRACT(DAY FROM expense.date) BETWEEN 22 AND 28 THEN 'Week 4'
+        WHEN TO_CHAR(expense.date AT TIME ZONE 'UTC', 'YYYY-MM-DD')::date BETWEEN :startDate AND :startDate + INTERVAL '6 days' THEN 'Week 1'
+        WHEN TO_CHAR(expense.date AT TIME ZONE 'UTC', 'YYYY-MM-DD')::date BETWEEN :startDate + INTERVAL '7 days' AND :startDate + INTERVAL '13 days' THEN 'Week 2'
+        WHEN TO_CHAR(expense.date AT TIME ZONE 'UTC', 'YYYY-MM-DD')::date BETWEEN :startDate + INTERVAL '14 days' AND :startDate + INTERVAL '20 days' THEN 'Week 3'
+        WHEN TO_CHAR(expense.date AT TIME ZONE 'UTC', 'YYYY-MM-DD')::date BETWEEN :startDate + INTERVAL '21 days' AND :startDate + INTERVAL '27 days' THEN 'Week 4'
         ELSE 'Week 5'
       END AS week`,
         `COALESCE(SUM(expense.price), 0) AS totalExpense`,
       ])
-      .where(`EXTRACT(YEAR FROM expense.date) = :year`, { year })
-      .andWhere(`EXTRACT(MONTH FROM expense.date) = :month`, { month })
+      .where(`expense.date BETWEEN :startDate AND :endDate`, {
+        startDate,
+        endDate,
+      })
       .andWhere('expense.userId = :userId', { userId: user.id })
-
       .groupBy(`week`)
       .orderBy(`week`, 'ASC')
       .getRawMany();
