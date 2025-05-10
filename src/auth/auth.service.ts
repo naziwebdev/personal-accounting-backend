@@ -92,7 +92,7 @@ export class AuthService {
       getOtpRedisPattern(normalizedPhone),
     );
     if (!userOtp) {
-      throw new BadRequestException('not found otp');
+      throw new NotFoundException('not found otp');
     }
 
     const isValidOtp = await bcrypt.compare(otp, userOtp);

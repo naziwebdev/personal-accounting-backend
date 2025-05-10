@@ -15,12 +15,26 @@ import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiCookieAuth,
+} from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/send')
+  @ApiOperation({ summary: 'send otp to user' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'otp sent successfully' })
+  @ApiResponse({
+    status: HttpStatus.TOO_MANY_REQUESTS,
+    description: 'too many request',
+  })
   async send(@Body() body: SendOTPDto) {
     const sendOtp = await this.authService.sendOtp(body.phone);
 
@@ -40,6 +54,17 @@ export class AuthController {
   }
 
   @Post('/verify')
+  @ApiOperation({ summary: 'verify user otp' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'user register successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'user login successfully',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'not found otp' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'invalid otp' })
   async verify(@Body() body: VerifyOtpDto, @Res() res: Response) {
     const verify = await this.authService.verify(body.phone, body.otp);
 
@@ -78,7 +103,14 @@ export class AuthController {
     });
   }
 
+  @ApiBearerAuth()
   @Get('/me')
+  @ApiOperation({ summary: 'Get user info' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'user info sent successfully',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'not found user' })
   @UseGuards(JwtAuthGuard)
   async getMe(@getUser() user: User) {
     const userInfos = await this.authService.getMe(user.id);
@@ -90,7 +122,22 @@ export class AuthController {
     };
   }
 
+  @ApiCookieAuth('refreshToken')
   @Post('/refresh')
+  @ApiOperation({ summary: 'refresh token' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'access-token generated successfully',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'not found token' })
+  @ApiResponse({
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    description: 'token is invalid',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'token is expired',
+  })
   async refresh(@Req() req: Request, @Res() res: Response) {
     const refreshToken = req.cookies['refreshToken'];
 
@@ -103,7 +150,18 @@ export class AuthController {
     });
   }
 
+  @ApiCookieAuth('refreshToken')
   @Post('/logout')
+  @ApiOperation({ summary: 'log out user' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'user log out successfully',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'not found token' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'token not found',
+  })
   async logOut(@Req() req: Request, @Res() res: Response) {
     const refreshToken = req.cookies['refreshToken'];
     await this.authService.logOut(refreshToken);
