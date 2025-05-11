@@ -20,11 +20,24 @@ import { CheckTypeEnum } from './enums/check-type-enum';
 import { CheckStatusEnum } from './enums/check-status-enum';
 import { UpdateCheckDto } from './dtos/update-check.dto';
 import { UpdateStatusCheckDto } from './dtos/update-status-check.dto';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('checks')
 export class ChecksController {
   constructor(private readonly checksService: ChecksService) {}
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'create check' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'check created successfully',
+  })
   @Post('/')
   @UseGuards(JwtAuthGuard)
   async create(@getUser() user: User, @Body() body: CreateCheckDto) {
@@ -37,6 +50,19 @@ export class ChecksController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get all checks' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'checks sent successfully',
+  })
+  @ApiQuery({ name: 'page', type: Number, description: 'page', required: true })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    description: 'limit items',
+    required: true,
+  })
   @Get('/')
   @UseGuards(JwtAuthGuard)
   async findAll(
@@ -57,6 +83,22 @@ export class ChecksController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get checks by type' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'checks sent successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'checks not found',
+  })
+  @ApiQuery({
+    name: 'type',
+    enum: CheckTypeEnum,
+    description: 'type of check',
+    required: true,
+  })
   @Get('/type')
   @UseGuards(JwtAuthGuard)
   async findByType(
@@ -79,6 +121,22 @@ export class ChecksController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get checks by status' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'checks sent successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'check not found',
+  })
+  @ApiQuery({
+    name: 'status',
+    enum: CheckStatusEnum,
+    description: 'status of check',
+    required: true,
+  })
   @Get('/status')
   @UseGuards(JwtAuthGuard)
   async findByStatus(
@@ -101,6 +159,13 @@ export class ChecksController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get check by id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'check sent successfully',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'check not found' })
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
   async findById(@getUser() user: User, @Param('id') id: string) {
@@ -113,6 +178,14 @@ export class ChecksController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'update check' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'check updated successfully',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'check not found' })
+  @ApiBody({ type: UpdateCheckDto, required: false })
   @Put('/:id')
   @UseGuards(JwtAuthGuard)
   async update(
@@ -129,6 +202,13 @@ export class ChecksController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'update status check' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'status check updated successfully',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'check not found' })
   @Patch('/:id')
   @UseGuards(JwtAuthGuard)
   async updateStatus(
@@ -149,6 +229,17 @@ export class ChecksController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'delete check' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'check deleted successfully',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'check not found' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'check delete faild',
+  })
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   async remove(@getUser() user: User, @Param('id') id: string) {

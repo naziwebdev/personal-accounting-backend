@@ -19,11 +19,24 @@ import { CreateLoanDto } from './dtos/create-loan.dto';
 import { LoanStatusEnum } from './enums/loan-status-enum';
 import { UpdateLoanDto } from './dtos/update-loan.dto';
 import { UpdateStatusInstallment } from './dtos/update-installment-status.dto';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('loans')
 export class LoansController {
   constructor(private readonly loansService: LoansService) {}
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'create loan' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'loan created successfully',
+  })
   @Post('/')
   @UseGuards(JwtAuthGuard)
   async create(@getUser() user: User, @Body() body: CreateLoanDto) {
@@ -36,6 +49,19 @@ export class LoansController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get all loans' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'loans sent successfully',
+  })
+  @ApiQuery({ name: 'page', type: Number, description: 'page', required: true })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    description: 'limit items',
+    required: true,
+  })
   @Get('/')
   @UseGuards(JwtAuthGuard)
   async findAll(
@@ -56,6 +82,22 @@ export class LoansController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get loans by status' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'loans sent successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'not found loan',
+  })
+  @ApiQuery({
+    name: 'status',
+    enum: LoanStatusEnum,
+    description: 'status',
+    required: true,
+  })
   @Get('/status')
   @UseGuards(JwtAuthGuard)
   async findByStatus(
@@ -78,6 +120,16 @@ export class LoansController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get loans by id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'loans sent successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'not found loan',
+  })
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
   async findOne(@getUser() user: User, @Param('id') id: string) {
@@ -90,6 +142,17 @@ export class LoansController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'update loan' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'loan updated successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'not found loan',
+  })
+  @ApiBody({ type: UpdateLoanDto, required: false })
   @Put('/:id')
   @UseGuards(JwtAuthGuard)
   async update(
@@ -110,6 +173,20 @@ export class LoansController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'update status installment' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'installment status updated successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'not found loan',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'not found installment',
+  })
   @Patch('/installment/:id')
   @UseGuards(JwtAuthGuard)
   async updateStatusInstallment(
@@ -130,6 +207,24 @@ export class LoansController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'delete loan' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'loan deleted successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'not found loan',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'not found installment',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'delete loan faild',
+  })
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   async remove(@getUser() user: User, @Param('id') id: string) {

@@ -16,11 +16,24 @@ import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { CreateNoteDto } from './dtos/create-note.dto';
 import { UpdateNoteDto } from './dtos/update-note.dto';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('notes')
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'create note' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'note created successfully',
+  })
   @Post('/')
   @UseGuards(JwtAuthGuard)
   async create(@getUser() user: User, @Body() body: CreateNoteDto) {
@@ -33,6 +46,19 @@ export class NotesController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get all notes' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'notes sent successfully',
+  })
+  @ApiQuery({ name: 'page', type: Number, description: 'page', required: true })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    description: 'limit items',
+    required: true,
+  })
   @Get('/')
   @UseGuards(JwtAuthGuard)
   async findAll(
@@ -53,6 +79,16 @@ export class NotesController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get note by id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'note sent successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'not found note',
+  })
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
   async findOne(@getUser() user: User, @Param('id') id: string) {
@@ -65,6 +101,17 @@ export class NotesController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'update note' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'note updated successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'not found note',
+  })
+  @ApiBody({ type: UpdateNoteDto, required: false })
   @Put('/:id')
   @UseGuards(JwtAuthGuard)
   async update(
@@ -81,6 +128,20 @@ export class NotesController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'delete note' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'note deleted successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'not found note',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'delete note faild',
+  })
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   async remove(@getUser() user: User, @Param('id') id: string) {

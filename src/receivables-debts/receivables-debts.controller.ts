@@ -20,6 +20,13 @@ import { ReceivableDebtTypeEnum } from './enums/receivable-debt-type-enum';
 import { UpdateReceivableDebtStatusDto } from './dtos/update-receivable-debt-status';
 import { UpdateReceivableDebtDto } from './dtos/update-receivable-debt.dto';
 import { ReceivableDebtStatusEnum } from './enums/receivable-debt-status';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('receivables-debts')
 export class ReceivablesDebtsController {
@@ -27,6 +34,12 @@ export class ReceivablesDebtsController {
     private readonly receivablesDebtsService: ReceivablesDebtsService,
   ) {}
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'create receivable-debt' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'receivable-debt created successfully',
+  })
   @Post('/')
   @UseGuards(JwtAuthGuard)
   async create(@getUser() user: User, @Body() body: CreateReceivableDebtDto) {
@@ -42,6 +55,25 @@ export class ReceivablesDebtsController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get receivables-debts by type' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'receivables-debts sent successfully',
+  })
+  @ApiQuery({
+    name: 'type',
+    enum: ReceivableDebtTypeEnum,
+    description: 'type of receivable-debt',
+    required: true,
+  })
+  @ApiQuery({ name: 'page', type: Number, description: 'page', required: true })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    description: 'limit items',
+    required: true,
+  })
   @Get('/type')
   @UseGuards(JwtAuthGuard)
   async findByType(
@@ -63,6 +95,30 @@ export class ReceivablesDebtsController {
       message: 'receivable/debt sent successfully',
     };
   }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get receivables-debts by status' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'receivables-debts sent successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'receivables-debts not found',
+  })
+  @ApiQuery({
+    name: 'status',
+    enum: ReceivableDebtStatusEnum,
+    description: 'status of receivables-debts',
+    required: true,
+  })
+  @ApiQuery({ name: 'page', type: Number, description: 'page', required: true })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    description: 'limit items',
+    required: true,
+  })
   @Get('/status')
   @UseGuards(JwtAuthGuard)
   async findByStatus(
@@ -85,6 +141,16 @@ export class ReceivablesDebtsController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get receivable-debt  by id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'receivable-debt  sent successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'receivable-debt  not found',
+  })
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
   async findById(@getUser() user: User, @Param('id') id: string) {
@@ -100,6 +166,16 @@ export class ReceivablesDebtsController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'update status receivable-debt' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'status receivable-debt updated successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'receivable-debt not found',
+  })
   @Patch('/:id/status')
   @UseGuards(JwtAuthGuard)
   async updateStatus(
@@ -120,6 +196,17 @@ export class ReceivablesDebtsController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'update receivable-debt' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'receivable-debt updated successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'receivable-debt not found',
+  })
+  @ApiBody({ type: UpdateReceivableDebtDto, required: false })
   @Put('/:id')
   @UseGuards(JwtAuthGuard)
   async update(
@@ -140,6 +227,21 @@ export class ReceivablesDebtsController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'delete receivable-debt' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'receivable-debt deleted successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'receivable-debt not found',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'receivable-debt delete faild',
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'unAuthorized' })
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   async remove(@getUser() user: User, @Param('id') id: string) {

@@ -3,11 +3,35 @@ import { ReportsService } from './reports.service';
 import { getUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get income-weekly report' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'income-weekly report sent successfully',
+  })
+  @ApiQuery({
+    name: 'year',
+    type: Number,
+    description: 'year shamsi',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'month',
+    type: Number,
+    description: 'month shamsi',
+    required: true,
+  })
   @Get('/income-weekly')
   @UseGuards(JwtAuthGuard)
   async getWeeklyIncomeReport(
@@ -28,6 +52,18 @@ export class ReportsController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get income-monthly report' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'income-monthly report sent successfully',
+  })
+  @ApiQuery({
+    name: 'year',
+    type: Number,
+    description: 'year shamsi',
+    required: true,
+  })
   @Get('/income-monthly')
   @UseGuards(JwtAuthGuard)
   async getMonthlyIncomeReport(
@@ -46,6 +82,24 @@ export class ReportsController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get expense-weekly report' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'expense-weekly report sent successfully',
+  })
+  @ApiQuery({
+    name: 'year',
+    type: Number,
+    description: 'year shamsi',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'month',
+    type: Number,
+    description: 'month shamsi',
+    required: true,
+  })
   @Get('/expense-weekly')
   @UseGuards(JwtAuthGuard)
   async getWeeklyExpenseReport(
@@ -66,6 +120,18 @@ export class ReportsController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get expense-monthly report' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'expense-monthly report sent successfully',
+  })
+  @ApiQuery({
+    name: 'year',
+    type: Number,
+    description: 'year shamsi',
+    required: true,
+  })
   @Get('/expense-monthly')
   @UseGuards(JwtAuthGuard)
   async getMonthlyExpenseReport(
@@ -84,6 +150,18 @@ export class ReportsController {
     };
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get saving report' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'saving report sent successfully',
+  })
+  @ApiQuery({
+    name: 'year',
+    type: Number,
+    description: 'year shamsi',
+    required: true,
+  })
   @Get('/saving')
   @UseGuards(JwtAuthGuard)
   async getMonthlySavingReport(
