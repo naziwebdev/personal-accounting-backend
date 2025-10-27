@@ -106,6 +106,11 @@ export class ReceivablesDebtsService {
   ) {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
+
+     const totalCount = await this.receivablesDebtsRepository.count({
+      where: { user: { id: user.id } },
+    });
+
     const receivablesOrDebts = await this.receivablesDebtsRepository.find({
       where: {
         status,
@@ -121,7 +126,12 @@ export class ReceivablesDebtsService {
       );
     }
 
-    return receivablesOrDebts;
+    return {
+      items:receivablesOrDebts,
+      totalCount,
+      page,
+      limit
+    }
   }
 
   async remove(id: number, user: User) {

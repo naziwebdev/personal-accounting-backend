@@ -26,6 +26,10 @@ export class NotesService {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
 
+     const totalCount = await this.notesRepository.count({
+      where: { user: { id: user.id } },
+    });
+
     const notes = await this.notesRepository.find({
       relations: ['user'],
       where: { user: { id: user.id } },
@@ -33,7 +37,12 @@ export class NotesService {
       take: limit,
     });
 
-    return notes;
+    return {
+      items:notes,
+      totalCount,
+      page,
+      limit
+    }
   }
 
   async findOne(id: number, user: User) {

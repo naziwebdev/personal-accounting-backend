@@ -37,7 +37,7 @@ export class IncomesService {
     if (createIncomeDto.category_id) {
       const category = await this.categoriesService.findById(
         createIncomeDto.category_id,
-        CategoryTypeEnum.INCOME
+        CategoryTypeEnum.INCOME,
       );
 
       if (!category) {
@@ -60,6 +60,11 @@ export class IncomesService {
   async findAll(page: number = 1, limit: number = 2, user: User) {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
+
+    const totalCount = await this.incomesRepository.count({
+      where: { user: { id: user.id } },
+    });
+
     const userIncomes = await this.incomesRepository.find({
       relations: ['user', 'category', 'bankCard'],
       where: { user: { id: user.id } },
@@ -67,7 +72,12 @@ export class IncomesService {
       take: limit,
     });
 
-    return userIncomes;
+    return {
+      items: userIncomes,
+      totalCount,
+      page,
+      limit,
+    };
   }
 
   async findOne(id: number, user: User) {
@@ -104,7 +114,7 @@ export class IncomesService {
     if (updateIncomeDto.category_id) {
       const category = await this.categoriesService.findById(
         updateIncomeDto.category_id,
-        CategoryTypeEnum.INCOME
+        CategoryTypeEnum.INCOME,
       );
 
       if (!category) {
@@ -148,7 +158,6 @@ export class IncomesService {
       throw new UnauthorizedException('forbidden route');
     }
 
- 
     try {
       await this.incomesRepository.remove(income);
     } catch (error) {

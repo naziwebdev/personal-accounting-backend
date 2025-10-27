@@ -62,6 +62,10 @@ export class LoansService {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
 
+    const totalCount = await this.loansRepository.count({
+      where: { user: { id: user.id } },
+    });
+
     const loans = await this.loansRepository.find({
       relations: ['installments'],
       where: { user: { id: user.id } },
@@ -70,7 +74,12 @@ export class LoansService {
       order: { id: 'DESC' },
     });
 
-    return loans;
+    return {
+      items: loans,
+      totalCount,
+      page,
+      limit,
+    };
   }
 
   async getByStatus(

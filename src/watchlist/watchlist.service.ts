@@ -83,6 +83,10 @@ export class WatchlistService {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
 
+    const totalCount = await this.watchlistRepository.count({
+      where: { user: { id: user.id } },
+    });
+
     const watchlists = await this.watchlistRepository.find({
       relations: ['items'],
       where: { user: { id: user.id } },
@@ -96,7 +100,7 @@ export class WatchlistService {
       }),
     );
 
-    return watchlistsUpdateField;
+    return { items: watchlistsUpdateField, totalCount, page, limit };
   }
 
   async getWatchlistsByStatus(

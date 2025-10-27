@@ -23,7 +23,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
-  app.setGlobalPrefix('/api/v1');
+  app.setGlobalPrefix('api/v1');
   app.useGlobalInterceptors(new TransformDateInterceptor());
 
   // Swagger Configuration

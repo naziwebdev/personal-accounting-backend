@@ -28,6 +28,11 @@ export class ChecksService {
   async getAll(page: number, limit: number, user: User) {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
+
+     const totalCount = await this.checksRepository.count({
+      where: { user: { id: user.id } },
+    });
+
     const checks = await this.checksRepository.find({
       relations: ['user'],
       where: { user: { id: user.id } },
@@ -35,7 +40,12 @@ export class ChecksService {
       take: limit,
     });
 
-    return checks;
+    return {
+      items:checks,
+      totalCount,
+      page,
+      limit
+    }
   }
 
   async getByType(

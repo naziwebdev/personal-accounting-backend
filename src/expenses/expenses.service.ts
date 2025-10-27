@@ -61,6 +61,11 @@ export class ExpensesService {
   async findAll(page: number = 1, limit: number = 2, user: User) {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
+
+    const totalCount = await this.expenseRepository.count({
+      where: { user: { id: user.id } },
+    });
+
     const userExpenses = await this.expenseRepository.find({
       relations: ['user', 'category', 'bankCard'],
       where: { user: { id: user.id } },
@@ -68,7 +73,12 @@ export class ExpensesService {
       take: limit,
     });
 
-    return userExpenses;
+    return {
+      items: userExpenses,
+      totalCount,
+      page,
+      limit,
+    };
   }
 
   async findOne(id: number, user: User) {
@@ -149,7 +159,6 @@ export class ExpensesService {
       throw new UnauthorizedException('forbidden route');
     }
 
-  
     try {
       await this.expenseRepository.remove(expense);
     } catch (error) {
