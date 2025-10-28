@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
@@ -21,6 +25,7 @@ export class CategoriesService {
     const category = await this.categoriesRepository.create({
       title: createCategoryDto.title,
       type: createCategoryDto.type,
+      icon: createCategoryDto.icon,
       user,
     });
     return await this.categoriesRepository.save(category);
@@ -90,7 +95,6 @@ export class CategoriesService {
     } catch (error) {
       throw new InternalServerErrorException('Failed to delete');
     }
-  
   }
 
   async findById(id: number, type: CategoryTypeEnum) {

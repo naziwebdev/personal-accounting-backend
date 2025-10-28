@@ -21,6 +21,9 @@ export class Category {
   @Column({ type: 'enum', enum: CategoryTypeEnum, nullable: false })
   type: CategoryTypeEnum;
 
+  @Column({ nullable: true })
+  icon: string;
+
   @ManyToOne(() => User, (user) => user.categories, { nullable: true })
   user: User | null;
 
