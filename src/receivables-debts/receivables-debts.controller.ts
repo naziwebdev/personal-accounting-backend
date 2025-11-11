@@ -123,6 +123,7 @@ export class ReceivablesDebtsController {
   @UseGuards(JwtAuthGuard)
   async findByStatus(
     @getUser() user: User,
+    @Query('type') type: ReceivableDebtTypeEnum,
     @Query('status') status: ReceivableDebtStatusEnum,
     @Query('page') page: string,
     @Query('limit') limit: string,
@@ -131,13 +132,14 @@ export class ReceivablesDebtsController {
       parseInt(page),
       parseInt(limit),
       status,
+      type,
       user,
     );
 
     return {
       data: receivablesOrDebts,
       statusCode: HttpStatus.OK,
-      message: 'receivable/debt sent successfully',
+      message: `${type} sent successfully`,
     };
   }
 

@@ -55,7 +55,16 @@ export class ExpensesService {
       bankCard: { id: createExpenseDto.bankCard_id },
     });
 
-    return await this.expenseRepository.save(expense);
+    const savedExpense = await this.expenseRepository.save(expense);
+
+    const totalCount = await this.expenseRepository.count({
+      where: { user: { id: user.id } },
+    });
+
+    return {
+      expense: savedExpense,
+      totalCount,
+    };
   }
 
   async findAll(page: number = 1, limit: number = 2, user: User) {
@@ -69,6 +78,7 @@ export class ExpensesService {
     const userExpenses = await this.expenseRepository.find({
       relations: ['user', 'category', 'bankCard'],
       where: { user: { id: user.id } },
+      order: { date: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -161,6 +171,12 @@ export class ExpensesService {
 
     try {
       await this.expenseRepository.remove(expense);
+
+      const totalCount = await this.expenseRepository.count({
+        where: { user: { id: user.id } },
+      });
+
+      return { success: true, totalCount };
     } catch (error) {
       throw new InternalServerErrorException('Failed to delete');
     }

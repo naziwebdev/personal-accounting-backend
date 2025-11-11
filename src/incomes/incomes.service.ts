@@ -54,7 +54,16 @@ export class IncomesService {
       bankCard: { id: createIncomeDto.bankCard_id },
     });
 
-    return await this.incomesRepository.save(income);
+    const savedIncome = await this.incomesRepository.save(income);
+
+    const totalCount = await this.incomesRepository.count({
+      where: { user: { id: user.id } },
+    });
+
+    return {
+      income: savedIncome,
+      totalCount,
+    };
   }
 
   async findAll(page: number = 1, limit: number = 2, user: User) {
@@ -68,6 +77,7 @@ export class IncomesService {
     const userIncomes = await this.incomesRepository.find({
       relations: ['user', 'category', 'bankCard'],
       where: { user: { id: user.id } },
+      order: { date: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -160,6 +170,12 @@ export class IncomesService {
 
     try {
       await this.incomesRepository.remove(income);
+
+      const totalCount = await this.incomesRepository.count({
+        where: { user: { id: user.id } },
+      });
+
+      return { success: true, totalCount };
     } catch (error) {
       throw new InternalServerErrorException('Failed to delete');
     }

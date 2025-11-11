@@ -38,13 +38,23 @@ export class ReceivablesDebtsService {
   ) {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
+
+    const totalCount = await this.receivablesDebtsRepository.count({
+      where: { user: { id: user.id } },
+    });
+
     const receivablesOrDebts = await this.receivablesDebtsRepository.find({
       where: { type, user: { id: user.id } },
       skip: (page - 1) * limit,
       take: limit,
     });
 
-    return receivablesOrDebts;
+    return {
+      items: receivablesOrDebts,
+      totalCount,
+      page,
+      limit,
+    };
   }
 
   async getById(id: number, user: User) {
@@ -102,18 +112,20 @@ export class ReceivablesDebtsService {
     page: number,
     limit: number,
     status: ReceivableDebtStatusEnum,
+    type: ReceivableDebtTypeEnum,
     user: User,
   ) {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
 
-     const totalCount = await this.receivablesDebtsRepository.count({
+    const totalCount = await this.receivablesDebtsRepository.count({
       where: { user: { id: user.id } },
     });
 
     const receivablesOrDebts = await this.receivablesDebtsRepository.find({
       where: {
         status,
+        type,
         user: { id: user.id },
       },
       skip: (page - 1) * limit,
@@ -127,11 +139,11 @@ export class ReceivablesDebtsService {
     }
 
     return {
-      items:receivablesOrDebts,
+      items: receivablesOrDebts,
       totalCount,
       page,
-      limit
-    }
+      limit,
+    };
   }
 
   async remove(id: number, user: User) {
@@ -148,7 +160,6 @@ export class ReceivablesDebtsService {
       throw new UnauthorizedException('forbidden route');
     }
 
-    
     try {
       await this.receivablesDebtsRepository.remove(receivableOrDebt);
     } catch (error) {
