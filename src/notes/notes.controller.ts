@@ -145,10 +145,10 @@ export class NotesController {
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   async remove(@getUser() user: User, @Param('id') id: string) {
-    await this.notesService.remove(parseInt(id), user);
+    const data = await this.notesService.remove(parseInt(id), user);
 
     return {
-      data: '',
+      data,
       statusCode: HttpStatus.OK,
       message: 'note deleted successfully',
     };

@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Check } from './entities/check.entity';
 import { Repository } from 'typeorm';
@@ -22,14 +26,22 @@ export class ChecksService {
       user,
     });
 
-    return await this.checksRepository.save(check);
+    const savedCheck = await this.checksRepository.save(check);
+    const totalCount = await this.checksRepository.count({
+      where: { user: { id: user.id }, type: createCheckDto.type },
+    });
+
+    return {
+      income: savedCheck,
+      totalCount,
+    };
   }
 
   async getAll(page: number, limit: number, user: User) {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
 
-     const totalCount = await this.checksRepository.count({
+    const totalCount = await this.checksRepository.count({
       where: { user: { id: user.id } },
     });
 
@@ -41,11 +53,11 @@ export class ChecksService {
     });
 
     return {
-      items:checks,
+      items: checks,
       totalCount,
       page,
-      limit
-    }
+      limit,
+    };
   }
 
   async getByType(
@@ -56,6 +68,11 @@ export class ChecksService {
   ) {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
+
+    const totalCount = await this.checksRepository.count({
+      where: { user: { id: user.id }, type },
+    });
+
     const checks = await this.checksRepository.find({
       relations: ['user'],
       where: { type, user: { id: user.id } },
@@ -67,20 +84,31 @@ export class ChecksService {
       throw new NotFoundException('not found check with this type');
     }
 
-    return checks;
+    return {
+      items: checks,
+      totalCount,
+      page,
+      limit,
+    };
   }
 
   async getByStatus(
     page: number,
     limit: number,
     status: CheckStatusEnum,
+    type: CheckTypeEnum,
     user: User,
   ) {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
+
+    const totalCount = await this.checksRepository.count({
+      where: { user: { id: user.id }, type },
+    });
+
     const checks = await this.checksRepository.find({
       relations: ['user'],
-      where: { status, user: { id: user.id } },
+      where: { status, type, user: { id: user.id } },
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -89,7 +117,12 @@ export class ChecksService {
       throw new NotFoundException('not found check with this status');
     }
 
-    return checks;
+    return {
+      items: checks,
+      totalCount,
+      page,
+      limit,
+    };
   }
 
   async getById(id: number, user: User) {
@@ -150,9 +183,14 @@ export class ChecksService {
     }
 
     try {
-        await this.checksRepository.remove(check);
-      } catch (error) {
-        throw new InternalServerErrorException('Failed to delete the check');
-      }
+      await this.checksRepository.remove(check);
+      const totalCount = await this.checksRepository.count({
+        where: { user: { id: user.id }, type: check.type },
+      });
+
+      return { success: true, totalCount };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to delete the check');
+    }
   }
 }

@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Note } from './entities/note.entity';
 import { Repository } from 'typeorm';
@@ -26,7 +30,7 @@ export class NotesService {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
 
-     const totalCount = await this.notesRepository.count({
+    const totalCount = await this.notesRepository.count({
       where: { user: { id: user.id } },
     });
 
@@ -38,11 +42,11 @@ export class NotesService {
     });
 
     return {
-      items:notes,
+      items: notes,
       totalCount,
       page,
-      limit
-    }
+      limit,
+    };
   }
 
   async findOne(id: number, user: User) {
@@ -83,9 +87,12 @@ export class NotesService {
       throw new NotFoundException('not found note');
     }
 
-    
     try {
       await this.notesRepository.remove(note);
+      const totalCount = await this.notesRepository.count({
+        where: { user: { id: user.id } },
+      });
+      return { success: true, totalCount };
     } catch (error) {
       throw new InternalServerErrorException('Failed to delete');
     }

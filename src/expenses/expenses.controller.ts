@@ -173,10 +173,10 @@ export class ExpensesController {
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   async remove(@getUser() user: User, @Param('id') id: string) {
-    await this.expensesService.remove(parseInt(id), user);
+    const data = await this.expensesService.remove(parseInt(id), user);
 
     return {
-      data: '',
+      data,
       statusCode: HttpStatus.OK,
       message: 'expense deleted successfully',
     };

@@ -173,10 +173,10 @@ export class IncomesController {
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   async remove(@getUser() user: User, @Param('id') id: string) {
-    await this.incomesService.remove(parseInt(id), user);
+    const data = await this.incomesService.remove(parseInt(id), user);
 
     return {
-      data: '',
+      data,
       statusCode: HttpStatus.OK,
       message: 'income deleted successfully',
     };

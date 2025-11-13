@@ -141,6 +141,7 @@ export class ChecksController {
   @UseGuards(JwtAuthGuard)
   async findByStatus(
     @getUser() user: User,
+    @Query('type') type: CheckTypeEnum,
     @Query('page') page: string,
     @Query('limit') limit: string,
     @Query('status') status: CheckStatusEnum,
@@ -149,6 +150,7 @@ export class ChecksController {
       parseInt(page),
       parseInt(limit),
       status,
+      type,
       user,
     );
 

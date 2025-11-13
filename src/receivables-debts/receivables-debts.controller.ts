@@ -247,10 +247,10 @@ export class ReceivablesDebtsController {
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   async remove(@getUser() user: User, @Param('id') id: string) {
-    await this.receivablesDebtsService.remove(parseInt(id), user);
+    const data = await this.receivablesDebtsService.remove(parseInt(id), user);
 
     return {
-      data: '',
+      data,
       statusCode: HttpStatus.OK,
       message: 'receivable/debt  removed successfully',
     };

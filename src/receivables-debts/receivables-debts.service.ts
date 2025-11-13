@@ -27,7 +27,17 @@ export class ReceivablesDebtsService {
       user,
     });
 
-    return await this.receivablesDebtsRepository.save(receivableOrDebt);
+    const savedItem =
+      await this.receivablesDebtsRepository.save(receivableOrDebt);
+
+    const totalCount = await this.receivablesDebtsRepository.count({
+      where: { user: { id: user.id }, type: createReceivableDebtDto.type },
+    });
+
+    return {
+      income: savedItem,
+      totalCount,
+    };
   }
 
   async getByType(
@@ -40,7 +50,7 @@ export class ReceivablesDebtsService {
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
 
     const totalCount = await this.receivablesDebtsRepository.count({
-      where: { user: { id: user.id } },
+      where: { user: { id: user.id }  , type},
     });
 
     const receivablesOrDebts = await this.receivablesDebtsRepository.find({
@@ -119,7 +129,7 @@ export class ReceivablesDebtsService {
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
 
     const totalCount = await this.receivablesDebtsRepository.count({
-      where: { user: { id: user.id } },
+      where: { user: { id: user.id } , type },
     });
 
     const receivablesOrDebts = await this.receivablesDebtsRepository.find({
@@ -162,6 +172,11 @@ export class ReceivablesDebtsService {
 
     try {
       await this.receivablesDebtsRepository.remove(receivableOrDebt);
+      const totalCount = await this.receivablesDebtsRepository.count({
+        where: { user: { id: user.id }, type: receivableOrDebt.type },
+      });
+
+      return { success: true, totalCount };
     } catch (error) {
       throw new InternalServerErrorException('Failed to delete');
     }
