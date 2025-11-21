@@ -21,7 +21,10 @@ import { UpdateWatchlistDto } from './dtos/update-watchlist.dto';
 import { UpdateWatchlistStatusDto } from './dtos/update-watchlist-status.dto';
 import { UpdateWatchlistItemDto } from './dtos/update-watchlist-item.dto';
 import { UpdateWatchlistItemStatusDto } from './dtos/update-watchlist-item-status.dto';
-import { WatchlistStatusEnum } from './enums/watchlist-status-enum';
+import {
+  WatchlistItemStatusEnum,
+  WatchlistStatusEnum,
+} from './enums/watchlist-status-enum';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -227,10 +230,13 @@ export class WatchlistController {
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   async removeWatchlist(@getUser() user: User, @Param('id') id: string) {
-    await this.watchlistService.removeWatchlist(parseInt(id), user);
+    const data = await this.watchlistService.removeWatchlist(
+      parseInt(id),
+      user,
+    );
 
     return {
-      data: '',
+      data,
       statusCode: HttpStatus.OK,
       message: 'watchlist deleted successfully',
     };
@@ -258,6 +264,52 @@ export class WatchlistController {
       data: item,
       statusCode: HttpStatus.CREATED,
       message: 'watchlist item created successfully',
+    };
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'get watchlist items by status' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'watchlist items sent successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'watchlist item not found',
+  })
+  @ApiQuery({
+    name: 'status',
+    enum: WatchlistItemStatusEnum,
+    description: 'status of watchlist item',
+    required: true,
+  })
+  @ApiQuery({ name: 'page', type: Number, description: 'page', required: true })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    description: 'limit items',
+    required: true,
+  })
+  @Get('/items/status')
+  @UseGuards(JwtAuthGuard)
+  async findWatchlistItemsByStatus(
+    @getUser() user: User,
+    @Query('status') status: WatchlistItemStatusEnum,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    const watchlistItemss =
+      await this.watchlistService.getWatchlistItemsByStatus(
+        parseInt(page),
+        parseInt(limit),
+        status,
+        user,
+      );
+
+    return {
+      data: watchlistItemss,
+      statusCode: HttpStatus.OK,
+      message: 'watchlist items sent successfully',
     };
   }
 
@@ -339,10 +391,10 @@ export class WatchlistController {
   @Delete('/item/:id')
   @UseGuards(JwtAuthGuard)
   async removeItem(@getUser() user: User, @Param('id') id: string) {
-    await this.watchlistService.removeItem(parseInt(id), user);
+    const data = await this.watchlistService.removeItem(parseInt(id), user);
 
     return {
-      data: '',
+      data,
       statusCode: HttpStatus.OK,
       message: 'watchlist item deleted successfully',
     };

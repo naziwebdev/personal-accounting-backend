@@ -16,7 +16,10 @@ import { UpdateWatchlistDto } from './dtos/update-watchlist.dto';
 import { UpdateWatchlistStatusDto } from './dtos/update-watchlist-status.dto';
 import { UpdateWatchlistItemDto } from './dtos/update-watchlist-item.dto';
 import { UpdateWatchlistItemStatusDto } from './dtos/update-watchlist-item-status.dto';
-import { WatchlistStatusEnum } from './enums/watchlist-status-enum';
+import {
+  WatchlistItemStatusEnum,
+  WatchlistStatusEnum,
+} from './enums/watchlist-status-enum';
 
 @Injectable()
 export class WatchlistService {
@@ -34,7 +37,15 @@ export class WatchlistService {
       user,
     });
 
-    return await this.watchlistRepository.save(watchlist);
+    const savedItem = await this.watchlistRepository.save(watchlist);
+    const totalCount = await this.watchlistRepository.count({
+      where: { user: { id: user.id } },
+    });
+
+    return {
+      income: savedItem,
+      totalCount,
+    };
   }
 
   async updateTotalPriceAndSavingsInWatchlist(watchlist: Watchlist) {
@@ -112,6 +123,10 @@ export class WatchlistService {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 2 : Number(limit);
 
+    const totalCount = await this.watchlistRepository.count({
+      where: { status, user: { id: user.id } },
+    });
+
     const watchlists = await this.watchlistRepository.find({
       relations: ['items'],
       where: { status, user: { id: user.id } },
@@ -123,7 +138,7 @@ export class WatchlistService {
       throw new NotFoundException('not found watchlist with this status');
     }
 
-    return watchlists;
+    return { items: watchlists, totalCount, page, limit };
   }
 
   async updateWatchlist(
@@ -171,25 +186,15 @@ export class WatchlistService {
       throw new NotFoundException('not found watchlist');
     }
 
-    const items = await this.watchlistItemsRepository.find({
-      where: { watchlist: { id: watchlist.id } },
+    await this.watchlistItemsRepository.delete({ watchlist: { id } });
+    await this.watchlistRepository.delete(id);
+
+    const totalCount = await this.watchlistRepository.count({
+      where: { user: { id: user.id } },
     });
 
-    if (items.length !== 0) {
-      try {
-        await this.watchlistItemsRepository.remove(items);
-      } catch (error) {
-        throw new InternalServerErrorException('delete was faild');
-      }
-    }
-
-    try {
-      await this.watchlistRepository.remove(watchlist);
-    } catch (error) {
-      throw new InternalServerErrorException('delete was faild');
-    }
+    return { success: true, totalCount };
   }
-
   //watchlist-item
 
   async createItem(createItemDto: CreateWatchlistItemDto, user: User) {
@@ -210,7 +215,43 @@ export class WatchlistService {
       watchlist,
     });
 
-    return await this.watchlistItemsRepository.save(watchlistItem);
+    const savedItem = await this.watchlistItemsRepository.save(watchlistItem);
+
+    const totalCount = await this.watchlistItemsRepository.count({
+      where: { watchlist: { id: watchlist.id } },
+    });
+
+    return {
+      item: savedItem,
+      totalCount,
+    };
+  }
+
+  async getWatchlistItemsByStatus(
+    page: number,
+    limit: number,
+    status: WatchlistItemStatusEnum,
+    user: User,
+  ) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 4 : Number(limit);
+
+    const totalCount = await this.watchlistItemsRepository.count({
+      where: { status, watchlist: { user: { id: user.id } } },
+    });
+
+    const items = await this.watchlistItemsRepository.find({
+      relations: ['watchlist'],
+      where: { status, watchlist: { user: { id: user.id } } },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    if (items.length === 0) {
+      throw new NotFoundException('No watchlist items found with this status');
+    }
+
+    return { items, totalCount, page, limit };
   }
 
   async updateItem(
@@ -272,6 +313,11 @@ export class WatchlistService {
 
     try {
       await this.watchlistItemsRepository.remove(item);
+      const totalCount = await this.watchlistItemsRepository.count({
+        where: { watchlist: { id: item.watchlist.id } },
+      });
+
+      return { success: true, totalCount };
     } catch (error) {
       throw new InternalServerErrorException('Failed to delete');
     }
