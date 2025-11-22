@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -34,8 +35,7 @@ export class WatchlistItem {
   })
   status: WatchlistItemStatusEnum;
 
-
-  @ManyToOne(() => Watchlist , (watchlist) => watchlist.items)
+  @ManyToOne(() => Watchlist, (watchlist) => watchlist.items)
   watchlist: Watchlist;
 
   @CreateDateColumn({

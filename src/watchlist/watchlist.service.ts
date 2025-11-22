@@ -231,24 +231,52 @@ export class WatchlistService {
     page: number,
     limit: number,
     status: WatchlistItemStatusEnum,
+    watchlistID: number,
     user: User,
   ) {
     page = isNaN(Number(page)) ? 1 : Number(page);
     limit = isNaN(Number(limit)) ? 4 : Number(limit);
 
     const totalCount = await this.watchlistItemsRepository.count({
-      where: { status, watchlist: { user: { id: user.id } } },
+      where: { status, watchlist: { id: watchlistID ,user:{id:user.id}} },
     });
 
     const items = await this.watchlistItemsRepository.find({
       relations: ['watchlist'],
-      where: { status, watchlist: { user: { id: user.id } } },
+      where: { status, watchlist: { id: watchlistID ,user:{id:user.id} } },
       skip: (page - 1) * limit,
       take: limit,
     });
 
     if (items.length === 0) {
       throw new NotFoundException('No watchlist items found with this status');
+    }
+
+    return { items, totalCount, page, limit };
+  }
+
+  async getItemsByWatchlistID(
+    page: number,
+    limit: number,
+    watchlistID: number,
+    user: User,
+  ) {
+    page = isNaN(Number(page)) ? 1 : Number(page);
+    limit = isNaN(Number(limit)) ? 4 : Number(limit);
+
+    const totalCount = await this.watchlistItemsRepository.count({
+      where: { watchlist: { id: watchlistID ,user:{id:user.id}} },
+    });
+
+    const items = await this.watchlistItemsRepository.find({
+      relations: ['watchlist'],
+      where: {watchlist: { id: watchlistID ,user:{id:user.id}} },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    if (items.length === 0) {
+      throw new NotFoundException('No watchlist items found');
     }
 
     return { items, totalCount, page, limit };

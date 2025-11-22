@@ -290,11 +290,12 @@ export class WatchlistController {
     description: 'limit items',
     required: true,
   })
-  @Get('/items/status')
+  @Get('/:id/items/status')
   @UseGuards(JwtAuthGuard)
   async findWatchlistItemsByStatus(
     @getUser() user: User,
     @Query('status') status: WatchlistItemStatusEnum,
+    @Param('id') id: string,
     @Query('page') page: string,
     @Query('limit') limit: string,
   ) {
@@ -303,6 +304,48 @@ export class WatchlistController {
         parseInt(page),
         parseInt(limit),
         status,
+        parseInt(id),
+        user,
+      );
+
+    return {
+      data: watchlistItemss,
+      statusCode: HttpStatus.OK,
+      message: 'watchlist items sent successfully',
+    };
+  }
+
+
+   @ApiBearerAuth()
+  @ApiOperation({ summary: 'get watchlist items  by watchlistID' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'watchlist items sent successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'watchlist item not found',
+  })
+  @ApiQuery({ name: 'page', type: Number, description: 'page', required: true })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    description: 'limit items',
+    required: true,
+  })
+  @Get('/:id/items')
+  @UseGuards(JwtAuthGuard)
+  async findWatchlistItemsByWatchlistID(
+    @getUser() user: User,
+    @Param('id') id: string,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    const watchlistItemss =
+      await this.watchlistService.getItemsByWatchlistID(
+        parseInt(page),
+        parseInt(limit),
+        parseInt(id),
         user,
       );
 
