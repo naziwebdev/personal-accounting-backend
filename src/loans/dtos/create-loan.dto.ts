@@ -33,7 +33,6 @@ export class CreateLoanDto {
   @ApiProperty({ example: 'Loan for buying a car', description: 'Loan description (length between 3-2000)' })
   @IsString()
   @IsOptional()
-  @Length(3, 2000, { message: 'description length must be btw 3-2000' })
   description?: string;
 
   @ApiProperty({ example: 12, description: 'Number of installments' })

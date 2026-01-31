@@ -1,32 +1,36 @@
 import { LoanPeriodEnum } from '../enums/loan-period-enum';
+import moment from 'moment-jalaali';
 
 export const calculateInstallmentsDates = (
   firstDate: Date,
   periodLoan: LoanPeriodEnum,
   installmentCount: number,
 ): Date[] => {
-  const installmentDates: Date[] = [];
-  let currentDate = new Date(firstDate);
 
-  installmentDates.push(new Date(firstDate));
+  const dates: Date[] = [];
 
-  for (let i = 1; i < installmentCount; i++) {
+  // Convert first date to Jalali moment
+  let current = moment(firstDate);
+
+  for (let i = 0; i < installmentCount; i++) {
+
+    // Convert back to Gregorian Date for DB / API
+    dates.push(current.toDate());
+
     switch (periodLoan) {
-      case LoanPeriodEnum.WEEKLY:
-        currentDate.setDate(currentDate.getDate() + 7);
-        break;
       case LoanPeriodEnum.MONTHLY:
-        currentDate.setMonth(currentDate.getMonth() + 1);
+        current = current.add(1, 'jMonth'); // 🔥 CRITICAL
         break;
-      case LoanPeriodEnum.YEARLY:
-        currentDate.setFullYear(currentDate.getFullYear() + 1);
-        break;
-      default:
-        throw new Error('Invalid period type');
-    }
 
-    installmentDates.push(new Date(currentDate));
+      case LoanPeriodEnum.WEEKLY:
+        current = current.add(7, 'day');
+        break;
+
+      case LoanPeriodEnum.YEARLY:
+        current = current.add(1, 'jYear');
+        break;
+    }
   }
 
-  return installmentDates;
+  return dates;
 };
