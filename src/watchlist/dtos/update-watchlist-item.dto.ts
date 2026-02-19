@@ -27,6 +27,5 @@ export class UpdateWatchlistItemDto {
   @ApiPropertyOptional({ example: 'High-performance gaming laptop', description: 'Description of the item (length between 3-2500)' })
   @IsString()
   @IsOptional()
-  @Length(3, 2500, { message: 'min & max description length must be btw 3-2500 chars' })
   description?: string;
 }

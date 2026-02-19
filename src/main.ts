@@ -5,6 +5,15 @@ import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.int
 import * as cookieParser from 'cookie-parser';
 import { TransformDateInterceptor } from './common/interceptors/shamsi-date.interceptor';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as moment from 'moment-jalaali';
+
+
+
+moment.loadPersian({
+  dialect: 'persian-modern',
+  usePersianDigits: false,
+});
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

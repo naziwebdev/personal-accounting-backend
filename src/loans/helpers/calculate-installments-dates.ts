@@ -1,5 +1,5 @@
 import { LoanPeriodEnum } from '../enums/loan-period-enum';
-import moment from 'moment-jalaali';
+import * as moment from 'moment-jalaali';
 
 export const calculateInstallmentsDates = (
   firstDate: Date,
@@ -10,7 +10,7 @@ export const calculateInstallmentsDates = (
   const dates: Date[] = [];
 
   // Convert first date to Jalali moment
-  let current = moment(firstDate);
+  let current = moment(firstDate)
 
   for (let i = 0; i < installmentCount; i++) {
 
@@ -34,3 +34,4 @@ export const calculateInstallmentsDates = (
 
   return dates;
 };
+
