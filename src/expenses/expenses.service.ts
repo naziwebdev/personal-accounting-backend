@@ -112,27 +112,6 @@ export class ExpensesService {
   }
 
   async update(updatExpenseDto: UpdateExpenseDto, id: number, user: User) {
-    if (updatExpenseDto.bankCard_id) {
-      const card = await this.bankCardService.getOne(
-        updatExpenseDto.bankCard_id,
-        user,
-      );
-      if (!card) {
-        throw new NotFoundException('not found bank-card');
-      }
-    }
-
-    if (updatExpenseDto.category_id) {
-      const category = await this.categoriesService.findById(
-        updatExpenseDto.category_id,
-        CategoryTypeEnum.EXPENSE,
-      );
-
-      if (!category) {
-        throw new NotFoundException('not found category');
-      }
-    }
-
     const expense = await this.expenseRepository.findOne({
       relations: ['user', 'category', 'bankCard'],
       where: { id, user: { id: user.id } },
@@ -142,15 +121,40 @@ export class ExpensesService {
       throw new NotFoundException('not found expense');
     }
 
-    if (expense?.user.id !== user.id) {
-      throw new UnauthorizedException('forbidden route');
+    if (updatExpenseDto.bankCard_id !== undefined) {
+      if (updatExpenseDto.bankCard_id === null) {
+        expense.bankCard = null as any;
+      } else {
+        const card = await this.bankCardService.getOne(
+          updatExpenseDto.bankCard_id,
+          user,
+        );
+
+        if (!card) {
+          throw new NotFoundException('not found bank-card');
+        }
+
+        expense.bankCard = card;
+      }
     }
+
+    if (updatExpenseDto.category_id !== undefined) {
+      const category = await this.categoriesService.findById(
+        updatExpenseDto.category_id,
+        CategoryTypeEnum.EXPENSE,
+      );
+
+      if (!category) {
+        throw new NotFoundException('not found category');
+      }
+
+      expense.category = category;
+    }
+
     expense.title = updatExpenseDto.title ?? expense.title;
     expense.price = updatExpenseDto.price ?? expense.price;
     expense.date = updatExpenseDto.date ?? (expense.date as any);
     expense.description = updatExpenseDto.description ?? expense.description;
-    expense.category.id = updatExpenseDto.category_id ?? expense.category.id;
-    expense.bankCard.id = updatExpenseDto.bankCard_id ?? expense.bankCard.id;
 
     return await this.expenseRepository.save(expense);
   }
